@@ -1,4 +1,4 @@
-# h2c-docs
+# helmfile2compose.github.io
 
 Documentation site for [helmfile2compose](https://github.com/helmfile2compose).
 

@@ -18,9 +18,27 @@ compose.yml + Caddyfile + configmaps/ + secrets/
 
 Despite the name, **helmfile is not required** — the core accepts any directory of K8s YAML files. Helmfile is just one way to produce them.
 
+### The ecosystem
+
+What started as a single script became an ecosystem of three components:
+
+- **[h2c-core](https://github.com/helmfile2compose/h2c-core)** — *the mad scribe.* A single Python script (~1500 lines) that reads K8s manifests and writes compose. Handles Deployments, StatefulSets, Services, Ingress, ConfigMaps, Secrets, PVCs, init containers, sidecars, and more things than anyone asked for.
+- **[Operators](operators.md)** — *the damned.* External CRD converters. When your stack uses Custom Resources (Keycloak, cert-manager, trust-manager), operators teach h2c-core how to convert them. Each operator is a single `.py` file. The conversion happens at generation time — no controller runs in compose.
+- **[h2c-manager](https://github.com/helmfile2compose/h2c-manager)** — *the dark priest.* Downloads h2c-core and operators from GitHub releases, resolves dependencies between operators, and provides a `run` shortcut. Reads `helmfile2compose.yaml` for declarative dependency management. Stdlib only, no dependencies.
+
 > *He who renders the celestial into the mundane does not ascend — he merely ensures that both realms now share his suffering equally.*
 >
 > — *Necronomicon, On the Folly of Downward Translation (probably)*
+
+## But why?
+
+There are dozens of tools that go from Compose to Kubernetes ([Kompose](https://github.com/kubernetes/kompose), [Compose Bridge](https://docs.docker.com/compose/bridge/), [Move2Kube](https://move2kube.konveyor.io/), etc.) — that's the "normal" direction. Almost nothing goes the other way, because who would design their deployment in K8s first and then downgrade?
+
+Using Kubernetes manifests as an intermediate representation to generate a docker-compose is absolutely using an ICBM to kill flies — which is exactly why I find it satisfying.
+
+> *The disciples beseeched the architect: render thy celestial works in common clay, that we may raise them without knowledge of the heavens. It was heresy. The architect obliged. The temples stood.*
+>
+> — *Necronomicon, Prayers That Should Never Have Been Answered (probably²)*
 
 ## Documentation
 

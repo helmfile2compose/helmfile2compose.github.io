@@ -22,6 +22,7 @@ theme:
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
+  custom_dir: overrides
   features:
     - navigation.sections
     - navigation.expand
@@ -55,3 +56,5 @@ markdown_extensions:
       alternate_style: true
   - toc:
       permalink: true
+
+copyright: Made with despair and dark rituals (and <a href="https://squidfunk.github.io/mkdocs-material/">MkDocs Material</a>)

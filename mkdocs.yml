@@ -3,7 +3,7 @@ site_url: https://helmfile2compose.github.io/h2c-docs/
 site_description: Convert Kubernetes manifests to compose.yml + Caddyfile
 repo_url: https://github.com/helmfile2compose/h2c-docs
 repo_name: helmfile2compose/h2c-docs
-docs_dir: .
+
 
 theme:
   name: material

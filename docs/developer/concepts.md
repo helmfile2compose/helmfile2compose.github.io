@@ -13,7 +13,7 @@ For the mechanical reality of how the conversion works, see [Architecture](archi
 | Reverse proxy | Ingress controller (HAProxy, nginx, traefik) | Caddy (auto-TLS, path routing) |
 | TLS | cert-manager (selfsigned or Let's Encrypt) | Caddy (internal CA or Let's Encrypt) |
 | Service discovery | K8s DNS (`.svc.cluster.local`) | Compose DNS (service names) |
-| Secrets | K8s Secrets (base64, RBAC-gated) | Inline env vars (derived from seed) |
+| Secrets | K8s Secrets (base64, RBAC-gated) | Inline env vars (plain text in compose.yml) |
 | Volumes | PVCs (dynamic provisioning) | Bind mounts or named volumes |
 | Port exposure | hostNetwork / NodePort / LoadBalancer | Explicit port mappings |
 | Scaling | HPA / replicas | Single instance |

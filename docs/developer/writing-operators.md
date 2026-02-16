@@ -57,6 +57,9 @@ The conversion context passed to every converter. Key attributes:
 | `ctx.replacements` | `list[dict]` | User-defined string replacements |
 | `ctx.alias_map` | `dict` | Service alias map (K8s Service name -> workload name) |
 | `ctx.service_port_map` | `dict` | Service port map ((svc_name, port) -> container_port) |
+| `ctx.fix_permissions` | `dict[str, int]` | Map of volume path -> UID. Entries generate a `fix-permissions` service that runs `chown -R <uid>` on the path. **Writable** — operators can register paths for non-root containers with bind mounts. |
+| `ctx.services_by_selector` | `dict` | Index of workload names by label selector. Used internally to resolve K8s Services to compose service names. |
+| `ctx.pvc_names` | `set[str]` | Names of PersistentVolumeClaims discovered in manifests. Used to distinguish PVC mounts from other volume types during conversion. |
 
 ### Priority
 

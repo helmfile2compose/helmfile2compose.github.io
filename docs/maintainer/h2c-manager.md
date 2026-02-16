@@ -30,6 +30,12 @@ python3 h2c-manager.py keycloak==0.1.0
 
 # Custom install directory (default: .h2c/)
 python3 h2c-manager.py -d ./tools keycloak
+
+# Delete .h2c/ and re-download everything
+python3 h2c-manager.py --force-reinstall
+
+# Force reinstall + run
+python3 h2c-manager.py --force-reinstall run -e compose
 ```
 
 ## Output
@@ -117,11 +123,7 @@ Available versions are whatever tags/releases exist on each repo. The registry d
 
 ### Adding an extension to the registry
 
-Open a PR to `helmfile2compose/h2c-manager` adding your extension to `extensions.json`. Requirements:
-
-- The extension repo must exist and have at least one GitHub Release
-- The `file` field must point to the `.py` file in the repo root
-- Optional: `requirements.txt` in the repo root (downloaded and checked by the manager)
+See [Writing operators — publishing](../developer/writing-operators.md#publishing) for the full guide.
 
 ## Declarative dependencies
 

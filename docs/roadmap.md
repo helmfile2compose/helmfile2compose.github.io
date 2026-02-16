@@ -34,17 +34,7 @@ New CRD operators as needed. The extension system exists — writing a new one i
 
 ## Out of scope
 
-### CronJobs
-
-Not converted. A CronJob would need an external scheduler or a `sleep`-loop wrapper, neither of which is a good idea.
-
-### Resource limits / HPA / PDB
-
-Compose supports `mem_limit` / `cpus`, but translating K8s resource semantics (requests vs limits, burstable QoS) is more misleading than helpful. Single-machine tool.
-
-### Probes to healthcheck
-
-The semantics differ enough that a blind translation causes more problems than it solves.
+CronJobs, resource limits, HPA, PDB, probes-to-healthcheck. See [Limitations](limitations.md) for the full list and rationale.
 
 ---
 

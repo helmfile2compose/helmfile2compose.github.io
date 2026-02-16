@@ -51,6 +51,10 @@ services:
 
 ## Sections
 
+### `helmfile2ComposeVersion`
+
+Config file format version. Currently the only valid value is `v1`. Auto-set on first run.
+
 ### `name`
 
 Compose project name. Auto-set to the source directory basename on first run.
@@ -105,7 +109,7 @@ On first run, K8s-only workloads matching `cert-manager`, `ingress`, `reflector`
 
 ### `replacements`
 
-Global find/replace applied to generated ConfigMap/Secret files and environment variable values. Port remapping is automatic — use replacements for other rewrites.
+Global find/replace applied to generated ConfigMap/Secret files, environment variable values, and Caddyfile upstreams. Port remapping is automatic — use replacements for other rewrites.
 
 ```yaml
 replacements:
@@ -169,17 +173,15 @@ If `true`, adds `tls internal` to all Caddyfile host blocks. Forces Caddy to use
 
 ### `core_version`
 
-Pin the h2c-core version. When `h2c-manager` runs, it uses this instead of fetching the latest release.
+Pin the h2c-core version for [h2c-manager](../maintainer/h2c-manager.md). Ignored by h2c-core itself.
 
 ```yaml
 core_version: v2.0.0
 ```
 
-CLI `--core-version` overrides this.
-
 ### `depends`
 
-List of [h2c extensions](../extensions.md) required by this project. When `h2c-manager` is run with no explicit extensions on the command line, it reads this list and installs them automatically.
+List of [h2c extensions](../extensions.md) required by this project. h2c-manager reads this list and installs them automatically.
 
 ```yaml
 depends:
@@ -188,9 +190,7 @@ depends:
   - trust-manager
 ```
 
-Version pinning is supported with `==`. Explicit CLI extensions override the yaml list.
-
-This turns `helmfile2compose.yaml` into the single source of truth for the project's dependencies — no hardcoded lists in shell scripts.
+See [h2c-manager — declarative dependencies](../maintainer/h2c-manager.md#declarative-dependencies) for override behavior and details.
 
 ### `disableCaddy`
 

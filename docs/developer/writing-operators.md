@@ -10,7 +10,7 @@ An operator is an external CRD converter — a Python module that teaches helmfi
 
 A converter class must have:
 
-1. **`kinds`** — a list of K8s kinds to handle (e.g. `["Keycloak", "KeycloakRealmImport"]`)
+1. **`kinds`** — a list of K8s kinds to handle (e.g. `["Keycloak", "KeycloakRealmImport"]`). **Kinds are exclusive between extensions** — if two extensions claim the same kind, h2c exits with an error. An extension *can* override a built-in converter by claiming the same kind — the built-in is silently removed from the dispatch for that kind. Yes, this means you can replace how h2c handles Ingress, or Secrets, or Deployments. Why you would corrupt the already corrupted is between you and Yog Sa'rath.
 2. **`convert(kind, manifests, ctx)`** — called once per kind, returns a `ConvertResult`
 
 ```python

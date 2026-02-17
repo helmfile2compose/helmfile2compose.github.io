@@ -38,6 +38,7 @@ The name is `helmfile2compose` because both helmfile and docker-compose share th
 - **[Concepts](developer/concepts.md)** — design philosophy, emulation boundary, K8s vs Compose differences
 - **[Architecture](developer/architecture.md)** — converter pipeline, what gets converted, dispatch loop
 - **[Writing operators](developer/writing-operators.md)** — develop your own CRD converter
+- **[Code quality](developer/code-quality.md)** — linter scores, complexity metrics, existential dread
 
 ### Reference
 

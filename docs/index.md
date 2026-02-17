@@ -1,6 +1,6 @@
 # helmfile2compose
 
-*For when you maintain a helmfile but people keep asking for a docker-compose. But it got REALLY out of hand*
+*For when you just wanted to maintain a nice helmfile but people kept asking for a docker-compose — then it got REALLY out of hand*
 
 Convert Kubernetes manifests to `compose.yml` + `Caddyfile`. Not Kubernetes-in-Docker (kind, k3d, minikube...) — no cluster, no kubelet, no shim. A devolution of the power of Kubernetes into the simplicity of compose: real `docker compose up`, real Caddy, plain stupid containers.
 

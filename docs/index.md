@@ -14,7 +14,7 @@ The name is `helmfile2compose` because both helmfile and docker-compose share th
 
 > *The disciples beseeched the architect: render thy celestial works in common clay, that we may raise them without knowledge of the heavens. It was heresy. The architect obliged. The temples stood.*
 >
-> — *Necronomicon, Prayers That Should Never Have Been Answered (probably²)*
+> — *Necronomicon, Prayers That Should Never Have Been Answered (probably)*
 
 ## Documentation
 

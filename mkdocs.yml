@@ -52,6 +52,7 @@ nav:
       - Roadmap: roadmap.md
 
 markdown_extensions:
+  - attr_list
   - admonition
   - pymdownx.highlight:
       anchor_linenums: true

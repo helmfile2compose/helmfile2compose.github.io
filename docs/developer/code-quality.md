@@ -104,6 +104,22 @@ A project that emulates a container orchestrator by flattening its output into a
 
 The linters approved. The complexity metrics nodded. And now the test suite confirms: the rituals produce identical output every time. The temple is no longer merely structurally sound — it is *under continuous inspection*.
 
+## Code gotchas
+
+### Null-safe YAML access
+
+Python's `dict.get("key", default)` returns `default` only when the key is **absent**. When the key exists with an explicit `None` value (common in Helm charts with conditional `{{ if }}` blocks), `.get()` returns `None`, not the default.
+
+```python
+# WRONG — returns None when key exists with null value
+annotations = manifest.get("metadata", {}).get("annotations", {})
+
+# RIGHT — coalesces None to empty dict
+annotations = manifest.get("metadata", {}).get("annotations") or {}
+```
+
+This applies to any field that Helm may render as `null`: `annotations`, `ports`, `initContainers`, `securityContext`, `data`, `stringData`, `rules`, `selector`. Use `or {}` / `or []` for any `.get()` on a YAML field that could be explicitly null. v2.3.1 fixed 30+ instances of this across h2c-core, nginx, and traefik.
+
 ## Running locally
 
 ```bash

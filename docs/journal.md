@@ -54,7 +54,7 @@ Removed `rewrite_k8s_dns` — the function that silently rewrote everything is g
 >
 > — *De Vermis Mysteriis, On Names Restored (so I'm told)*
 
-Also released: h2c-operator-keycloak v0.2.0 (namespace + alias registration), h2c-operator-servicemonitor v0.1.0. h2c-manager gained declarative `depends:` from helmfile2compose.yaml and a `run` shortcut — features that a "lightweight downloader" probably shouldn't have (~430 lines).
+Also released: h2c-operator-keycloak v0.2.0 (now h2c-provider-keycloak; namespace + alias registration), h2c-operator-servicemonitor v0.1.0 (now h2c-provider-servicemonitor). h2c-manager gained declarative `depends:` from helmfile2compose.yaml and a `run` shortcut — features that a "lightweight downloader" probably shouldn't have (~430 lines).
 
 ---
 
@@ -70,11 +70,11 @@ Humanity abandoned the last pretense of restraint. What was one script is now an
 
 Extension loading via `--extensions-dir`. Deep merge for overrides. Hostname truncation. Backend SSL. The org, the manager, the operators — all born on the same day.
 
-> *The temple was not translated — it was dismantled, stone by stone, and rebuilt as a shed. The prayers still worked. The architect watched, powerless, as the faithful praised the shed.*
+> *The high priest declared the scripture too vast for a single tome, and so it was unbound — its chapters scattered across separate altars, each tended by its own acolyte. The faithful protested: how shall we read what is no longer whole? The high priest answered: you were never reading it whole.*
 >
-> — *De Vermis Mysteriis, On Unnecessary Simplifications (probably, again)*
+> — *De Vermis Mysteriis, On the Scattering of Canons (or words to that effect)*
 
-Also released: h2c-manager v0.1.0 (357 lines — "just a downloader"), h2c-operator-keycloak v0.1.0, h2c-operator-cert-manager v0.1.0, h2c-operator-trust-manager v0.1.0.
+Also released: h2c-manager v0.1.0 (357 lines — "just a downloader"), h2c-operator-keycloak v0.1.0 (now h2c-provider-keycloak), h2c-operator-cert-manager v0.1.0 (now h2c-converter-cert-manager), h2c-operator-trust-manager v0.1.0 (now h2c-converter-trust-manager).
 
 ---
 

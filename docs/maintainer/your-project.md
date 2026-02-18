@@ -161,7 +161,7 @@ Without this, h2c won't recognize the class and the Ingress is skipped with a wa
 
 3. **Ship a `helmfile2compose.yaml.template`.** Pre-configure excludes, overrides, and volume mappings that are specific to your project. The generate script copies it to `helmfile2compose.yaml` on first run. Users then customize their copy.
 
-4. **Pin a release.** Use `--core-version` in h2c-manager and `==version` for extensions. Don't point at `main`. The tool's behavior may change between releases (or mutate on its own, I don't know anything at this point).
+4. **Pin a release.** Use `--core-version` in h2c-manager and `==version` for extensions. Don't point at `main`. The tool's behavior may change between releases (or mutate on its own, I don't know anything at this point). I don't do it myself — but I think we already established my sanity left around v1.2, way before extensions were even on the roadmap.
 
 ## The two projects that caused this to exist
 

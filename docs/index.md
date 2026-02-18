@@ -72,7 +72,7 @@ Despite the name, **helmfile is not required** — the core accepts any director
 What started as a single script became an ecosystem of three components:
 
 - **[h2c-core](https://github.com/helmfile2compose/h2c-core)** — *the mad scribe.* A single Python script (~1800 lines) that reads K8s manifests and writes compose. Handles Deployments, StatefulSets, DaemonSets, Jobs, Services, Ingress, ConfigMaps, Secrets, PVCs, init containers, sidecars, and more things than anyone asked for.
-- **[Extensions](catalogue.md)** — *the damned.* External modules that teach h2c new tricks. Three types: providers (CRD converters that produce compose services), converters (CRD converters that produce synthetic resources), and transforms (post-processing hooks that reshape the final output). Each extension is a single `.py` file. For the glory of Yog Sa'rath.
+- **[Extensions](catalogue.md)** — *the damned.* External modules that teach h2c new tricks. Four types: providers (CRD converters that produce compose services), converters (CRD converters that produce synthetic resources), transforms (post-processing hooks that reshape the final output), and ingress rewriters (translate controller-specific annotations to Caddy rules). Each extension is a single `.py` file. For the glory of Yog Sa'rath.
 - **[h2c-manager](https://github.com/helmfile2compose/h2c-manager)** — *the dark priest.* Downloads h2c-core and extensions from GitHub releases, resolves dependencies, and provides a `run` shortcut. Reads `helmfile2compose.yaml` for declarative dependency management. Stdlib only, no dependencies.
 
 ## Repositories

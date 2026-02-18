@@ -27,7 +27,7 @@ The original Grafana service uses `kiwigrid/k8s-sidecar` as the main image (the 
 # helmfile2compose.yaml
 overrides:
   kube-prometheus-stack-grafana:
-    image: docker.io/grafana/grafana:12.3.1
+    image: docker.io/grafana/grafana:12.3.1  # adapt to your version
     container_name: null
     environment:
       GF_SECURITY_ADMIN_USER: $secret:grafana-admin-secret:username
@@ -46,7 +46,7 @@ overrides:
       - ./configmaps/kube-prometheus-stack-grafana-datasource/datasource.yaml:/etc/grafana/provisioning/datasources/datasource.yaml:ro
 ```
 
-Adapt the secret name, image version, and dashboard paths to your setup.
+Adapt the secret name, dashboard paths, and **Grafana image version** to your setup — the version shown above is a snapshot that will go stale.
 
 ## Datasource provisioning
 

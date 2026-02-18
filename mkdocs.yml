@@ -25,7 +25,6 @@ theme:
   custom_dir: overrides
   features:
     - navigation.sections
-    - navigation.expand
     - content.code.copy
     - search.suggest
 
@@ -37,7 +36,10 @@ nav:
       - Advanced: user/advanced.md
   - Maintainer guide:
       - Your project: maintainer/your-project.md
-      - Known workarounds: maintainer/known-workarounds/index.md
+      - Known workarounds:
+          - Overview: maintainer/known-workarounds/index.md
+          - Common charts: maintainer/known-workarounds/common-charts.md
+          - kube-prometheus-stack: maintainer/known-workarounds/kube-prometheus-stack.md
       - h2c-manager: maintainer/h2c-manager.md
   - Developer guide:
       - Concepts: developer/concepts.md

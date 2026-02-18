@@ -148,14 +148,43 @@ python3 h2c-manager.py flatten-internal-urls
 
 ## Ingress rewriters
 
-Ingress rewriters translate controller-specific annotations into Caddy configuration. Unlike converters, they don't claim K8s kinds — they're dispatched per-manifest within `IngressConverter` based on `ingressClassName` or annotation prefix.
+Ingress rewriters translate controller-specific annotations into Caddy configuration. Unlike converters, they don't claim K8s kinds — they intercept individual Ingress manifests based on `ingressClassName` or annotation prefix, read whatever vendor-specific incantations the chart author scattered across the annotations, and produce Caddy config that does the same thing. The annotations were never meant to be portable. That's the point.
 
-The built-in `HAProxyRewriter` handles `haproxy` and empty/absent ingress classes. External rewriters with the same `name` replace the built-in one. Convention: rewriter repos use the `h2c-rewriter-*` prefix.
+The built-in `HAProxyRewriter` handles `haproxy` and empty/absent ingress classes. If your cluster uses something else — and statistically, it does, because nobody agrees on ingress controllers — you need a rewriter for it. External rewriters with the same `name` replace the built-in one. Remember to map them in `helmfile2compose.yaml`.
 
-Available rewriters:
+### nginx
 
-- **nginx** — [h2c-rewriter-nginx](https://github.com/helmfile2compose/h2c-rewriter-nginx): Nginx ingress annotations (rewrite-target, backend-protocol, CORS, proxy-body-size, configuration-snippet). Install: `python3 h2c-manager.py nginx`
-- **traefik** — [h2c-rewriter-traefik](https://github.com/helmfile2compose/h2c-rewriter-traefik): Traefik ingress annotations (router.tls, standard path rules). POC — Traefik CRDs not supported. Install: `python3 h2c-manager.py traefik`
+| | |
+|---|---|
+| **Repo** | [h2c-rewriter-nginx](https://github.com/helmfile2compose/h2c-rewriter-nginx) |
+| **Matches** | `nginx` ingressClassName |
+| **Status** | stable |
+
+It just translates. Not its fault the controller it serves gets deprecated while the project still can't agree on whether it's called `ingress-nginx`, `nginx-ingress`, or `kubernetes-ingress`. The annotations are a mess. The rewriter faithfully reproduces the mess. Shoot the messenger if you want, but maybe update your ingress controller first.
+
+Handles `rewrite-target`, `backend-protocol`, CORS, `proxy-body-size`, `configuration-snippet`. If your helmfile uses nginx annotations, install this or watch your Caddy routes silently ignore everything that made your app work.
+
+```bash
+python3 h2c-manager.py nginx
+```
+
+---
+
+### traefik
+
+| | |
+|---|---|
+| **Repo** | [h2c-rewriter-traefik](https://github.com/helmfile2compose/h2c-rewriter-traefik) |
+| **Matches** | `traefik` ingressClassName |
+| **Status** | POC |
+
+A translator that knows it doesn't speak the full language, and chooses silence over hallucination. Traefik CRDs (`IngressRoute`, `Middleware`, etc.) are not supported — only standard `Ingress` resources with Traefik annotations. If your helmfile uses Traefik CRDs extensively, this won't save you. If it uses standard Ingress with a few Traefik-flavored annotations, it might. Handles `router.tls` and standard path rules. Everything else passes through unremarked, unrewritten, unrepentant.
+
+Warning: untested. May or may not work. Can't tell. Use HAProxy.
+
+```bash
+python3 h2c-manager.py traefik
+```
 
 ## Writing your own
 

@@ -4,15 +4,12 @@ Ideas that are too good (or too cursed) to forget but not urgent enough to imple
 
 For the emulation boundary — what can cross the bridge and what can't — see [Concepts](developer/concepts.md#the-emulation-boundary).
 
-*For what's already been done, see the [cursed journal](journal.md).*
 
 ## Next
 
 ### Everything becomes an extension
 
 Today, ConfigMap, Secret, Service, and PVC processing is hardcoded in the core. It works, but it means you can't swap out how any of these are handled without forking the script. The goal: make every kind dispatched through the same extension interface. Want to handle ConfigMaps differently? Write a ConfigMap extension. Want to add a custom Secret resolver? Drop it in `extensions/`.
-
-~~Ingress annotations~~ — **done**. The `IngressRewriter` extension interface dispatches by `ingressClassName` or annotation prefix. `HAProxyRewriter` is built-in. External rewriters can override or extend. `extra_directives` gives rewriters full control over Caddy output. See [Writing rewriters](developer/extensions/writing-rewriters.md).
 
 The Kubernetes [Gateway API](https://gateway-api.sigs.k8s.io/) is the eventual successor to Ingress — `HTTPRoute`, `Gateway`, `GRPCRoute` instead of `Ingress`. A `GatewayRewriter` extension would handle these kinds the same way `IngressRewriter` handles Ingress annotations: read the Gateway API resources, produce Caddy config. No rush — Gateway API adoption is still ramping up — but the extension system should be ready for it when it comes.
 
@@ -55,3 +52,5 @@ CronJobs, resource limits, HPA, PDB, probes-to-healthcheck. See [Limitations](li
 > *Thus spoke the disciple unto the void: "Yog Sa'rath, my hour has come." And the void answered not — for even it knew that some invocations are answered not with knowledge, but with consequences.*
 >
 > — *De Vermis Mysteriis, On the Hubris of the Disciple (probably³)*
+
+*For what's already been done, see the [cursed journal](journal.md).*

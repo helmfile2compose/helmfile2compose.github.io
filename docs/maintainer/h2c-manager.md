@@ -23,7 +23,7 @@ python3 h2c-manager.py keycloak
 python3 h2c-manager.py keycloak cert-manager trust-manager
 
 # Pin core version
-python3 h2c-manager.py --core-version v2.1.0 keycloak
+python3 h2c-manager.py --core-version v2.3.0 keycloak
 
 # Pin extension version
 python3 h2c-manager.py keycloak==0.2.0
@@ -87,7 +87,7 @@ Defaults: `--helmfile-dir .`, `--extensions-dir .h2c/extensions` (if it exists),
 ### Core
 
 - No flag: latest GitHub release of `helmfile2compose/h2c-core`
-- `--core-version v2.1.0`: exact tag
+- `--core-version v2.3.0`: exact tag
 
 ### Extensions
 
@@ -102,9 +102,9 @@ Extensions can declare dependencies in the registry. For example, `trust-manager
 
 ```bash
 python3 h2c-manager.py trust-manager
-# Fetching h2c-core v2.1.0...
-# Fetching extension cert-manager v0.1.0 (dependency of trust-manager)...
-# Fetching extension trust-manager v0.1.1...
+# Fetching h2c-core v2.3.0...
+# Fetching extension cert-manager (dependency of trust-manager)...
+# Fetching extension trust-manager...
 ```
 
 Dependencies are resolved one level deep (no transitive chains). Duplicates are deduplicated.
@@ -173,7 +173,7 @@ If `helmfile2compose.yaml` exists, h2c-manager reads `core_version` and `depends
 
 ```yaml
 # helmfile2compose.yaml
-core_version: v2.1.0
+core_version: v2.3.0
 depends:
   - keycloak
   - cert-manager==0.1.0
@@ -182,8 +182,8 @@ depends:
 
 ```bash
 python3 h2c-manager.py
-# Core version from helmfile2compose.yaml: v2.1.0
-# Fetching h2c-core v2.1.0...
+# Core version from helmfile2compose.yaml: v2.3.0
+# Fetching h2c-core v2.3.0...
 # Reading extensions from helmfile2compose.yaml: keycloak, cert-manager==0.1.0, trust-manager
 # Fetching extension keycloak v0.2.0...
 # ...

@@ -97,6 +97,7 @@ What started as a single script became an ecosystem of three components:
 
 - **[stoatchat-platform](https://github.com/baptisterajaut/stoatchat-platform)** — 15 services. Chat platform (Revolt rebranded).
 - **[lasuite-platform](https://github.com/baptisterajaut/lasuite-platform)** — 22 services + 11 init jobs. Collaborative suite (La Suite Num.).
+- **[mijn-bureau-infra](https://github.com/numerique-gouv/mijn-bureau-infra)** — ~30 services. Dutch government digital workplace. Not tested extensively, but it starts and the apps respond. Requires `nginx` and `bitnami` extensions.
 - **A proprietary, real production-grade helmfile** — Why do you think there are CRDs extension that aren't used in any public repo?
 
 ## License

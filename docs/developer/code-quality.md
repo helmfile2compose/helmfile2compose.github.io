@@ -90,6 +90,16 @@ The code is clean. The architecture is sound. The concept remains an abomination
 >
 > — *Cultes des Goules, On Accidental Rigor (regrettably)*
 
+## And then it got tests
+
+IT HAS TESTS. IT HAS A TEST SUITE.
+
+A [regression test suite](testing.md) that downloads two versions of h2c-core, runs every extension combo against a battery of edge-case manifests, and diffs the output. A torture test generator that produces O(n³) manifests. It cleans up after itself. It passes shellcheck.
+
+A project that emulates a container orchestrator by flattening its output into a different container orchestrator, whose fake kube-apiserver lives on a personal GitHub account for plausible deniability — this project has automated regression testing. With CI. Weekly runs. Artifact uploads.
+
+The linters approved. The complexity metrics nodded. And now the test suite confirms: the rituals produce identical output every time. The temple is no longer merely structurally sound — it is *under continuous inspection*.
+
 ## Running locally
 
 ```bash

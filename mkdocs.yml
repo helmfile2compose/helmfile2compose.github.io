@@ -45,6 +45,7 @@ nav:
       - Concepts: developer/concepts.md
       - Architecture: developer/architecture.md
       - Code quality: developer/code-quality.md
+      - Testing: developer/testing.md
       - Writing extensions:
           - Overview: developer/extensions/index.md
           - Converters: developer/extensions/writing-converters.md

@@ -41,6 +41,7 @@ The name is `helmfile2compose` because both helmfile and docker-compose share th
 - **[Concepts](developer/concepts.md)** — design philosophy, emulation boundary, K8s vs Compose differences
 - **[Architecture](developer/architecture.md)** — converter pipeline, what gets converted, dispatch loop
 - **[Code quality](developer/code-quality.md)** — linter scores, complexity metrics, existential dread
+- **[Testing](developer/testing.md)** — regression suite, torture generator, performance tracking
 - **[Writing extensions](developer/extensions/index.md)** — converters, providers, transforms, rewriters
 
 ### Extensions
@@ -89,6 +90,7 @@ What started as a single script became an ecosystem of three components:
 | [h2c-transform-flatten-internal-urls](https://github.com/helmfile2compose/h2c-transform-flatten-internal-urls) | Strip aliases, rewrite FQDNs to short names |
 | [h2c-rewriter-nginx](https://github.com/helmfile2compose/h2c-rewriter-nginx) | Nginx ingress annotation rewriter |
 | [h2c-rewriter-traefik](https://github.com/helmfile2compose/h2c-rewriter-traefik) | Traefik ingress annotation rewriter (POC) |
+| [h2c-testsuite](https://github.com/helmfile2compose/h2c-testsuite) | Regression & performance test suite |
 
 ## Compatible projects
 

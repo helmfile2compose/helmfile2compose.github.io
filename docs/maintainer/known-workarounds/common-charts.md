@@ -2,7 +2,13 @@
 
 Some Helm charts — popular, well-maintained, widely deployed — produce manifests that don't survive the flattening intact. Not because h2c is wrong, but because the charts make assumptions about the runtime that only hold in Kubernetes.
 
-These are the repeat offenders. If your helmfile includes any of them, you'll likely need the overrides below.
+These are the repeat offenders. If your helmfile includes any of them, you'll likely need the overrides below — or install the **bitnami** transform, which handles Redis, PostgreSQL, and Keycloak automatically:
+
+```bash
+python3 h2c-manager.py bitnami
+```
+
+The transform detects Bitnami images, applies the fixes described below, and logs every modification to stderr. Manual overrides still take precedence if you need fine-grained control.
 
 > *Certain beasts, though domesticated by the ancients, refuse to kneel before lesser altars. They do not resist — they simply ignore the new prayers, continuing to chant the old liturgy until the disciple learns to speak their tongue.*
 >
@@ -75,6 +81,36 @@ overrides:
 This is a full replacement, not a tweak. The Bitnami Redis chart's value proposition is operational tooling (sentinel, replication, metrics) — none of which applies in a single-machine compose stack. Stock Redis with a password is all you need.
 
 **Seen in:** lasuite-platform, stoatchat-platform.
+
+---
+
+## Bitnami Keycloak
+
+**Chart:** `bitnami/keycloak`
+
+The Bitnami Keycloak chart wraps the standard Keycloak image with an init container (`prepare-write-dirs`) that copies configuration to emptyDir volumes, and reads admin/database passwords from mounted Secret files. In compose, the emptyDir copy init fails (no shared emptyDir between services), and the Secret file mounts may not exist.
+
+**Override:**
+
+```yaml
+overrides:
+  <release>-keycloak:
+    environment:
+      KC_BOOTSTRAP_ADMIN_PASSWORD: $secret:<release>-keycloak:admin-password
+      KC_DB_PASSWORD: $secret:<release>-postgresql:password
+
+exclude:
+- <release>-keycloak-init-prepare-write-dirs
+```
+
+Replace `<release>` with your Helm release name.
+
+**What this does:**
+
+- Injects the admin and database passwords as environment variables instead of file mounts
+- Excludes the `prepare-write-dirs` init container that fails on emptyDir
+
+**Seen in:** mijn-bureau-infra.
 
 ---
 

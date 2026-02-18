@@ -39,7 +39,7 @@ Providers produce compose services — they emulate what a K8s controller would 
 | **Produces** | compose services + realm JSON files |
 | **Status** | stable |
 
-Almost boring by this project's standards. The Keycloak Operator's job is to read a CR and produce a Deployment with the right env vars — which is exactly what h2c does for every other workload anyway. The `Keycloak` CR becomes a compose service with KC_* environment variables (database, HTTP, hostname, proxy, features). `KeycloakRealmImport` CRs are written as JSON files and mounted for auto-import on startup. A realm import is a static declaration that gets applied once — no reconciliation loop needed, no mutation, no drift to watch for. Turns out, removing the operator from a CRD that was already declarative just... works. The least heretical thing here.
+Almost boring by this project's standards. The Keycloak Operator's job is to read a CR and produce a Deployment with the right env vars — which is exactly what h2c does for every other workload anyway. The `Keycloak` CR becomes a compose service with KC_* environment variables (database, HTTP, hostname, proxy, features). `KeycloakRealmImport` CRs are written as JSON files and mounted for auto-import on startup. A realm import is a static declaration that gets applied once — no reconciliation loop needed, no mutation, no drift to watch for. Turns out, removing the operator from a CRD that was already declarative just... works. Barely heretical.
 
 Features: TLS secret mounting (if certs exist — doesn't care who made them), podTemplate volume support, bootstrap admin generation, realm placeholder resolution, namespace and K8s Service alias registration for network aliases.
 
@@ -87,7 +87,7 @@ Converters produce synthetic resources (Secrets, ConfigMaps, files on disk) with
 | **Produces** | synthetic Secrets (PEM certificates) |
 | **Status** | stable |
 
-The most heretical of all extensions — and paradoxically, the one with the strongest case for existing. Try setting up a local CA chain, issuing certs with the right SANs for a dozen services, and mounting them where they need to go, all by hand in a compose file. cert-manager's declarative model actually makes *more* sense going through h2c than doing it manually. That's the uncomfortable part: the ICBM-to-kill-flies pipeline is, for once, genuinely simpler than the alternative.
+Very heretical — and paradoxically, the one with a strong case for existing. Try setting up a local CA chain, issuing certs with the right SANs for a dozen services, and mounting them where they need to go, all by hand in a compose file. cert-manager's declarative model actually makes *more* sense going through h2c than doing it manually. That's the uncomfortable part: the ICBM-to-kill-flies pipeline is, for once, genuinely simpler than the alternative.
 
 This extension generates real PEM certificates at conversion time — CA chains, SANs, ECDSA/RSA — and injects them as synthetic K8s Secrets into the conversion context. No ACME challenges. No renewal. No controller. Just cryptographic material, conjured from nothing, valid until it isn't.
 
@@ -144,6 +144,25 @@ Built to restore **nerdctl compose** compatibility — nerdctl silently ignores 
 
 ```bash
 python3 h2c-manager.py flatten-internal-urls
+```
+
+---
+
+### bitnami
+
+| | |
+|---|---|
+| **Repo** | [h2c-transform-bitnami](https://github.com/helmfile2compose/h2c-transform-bitnami) |
+| **Dependencies** | none |
+| **Priority** | 150 |
+| **Status** | stable |
+
+The janitor. Bitnami charts — Redis, PostgreSQL, Keycloak — wrap standard images in custom entrypoints, init containers, and volume conventions that assume a full Kubernetes environment. In compose, the entrypoints fail, the volumes don't line up, and the init containers crash on missing emptyDirs. The workarounds are well-documented in [common charts](maintainer/known-workarounds/common-charts.md) — this transform applies them automatically so you don't have to copy-paste overrides across projects.
+
+Detects Bitnami images by name, then: replaces Redis entirely with stock `redis:7-alpine`, fixes PostgreSQL volume paths, injects Keycloak passwords as env vars and removes the failing init container. Every modification is logged to stderr. User `overrides:` take precedence — if you've already handled a service manually, the transform leaves it alone.
+
+```bash
+python3 h2c-manager.py bitnami
 ```
 
 ## Ingress rewriters

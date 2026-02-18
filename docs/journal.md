@@ -8,6 +8,26 @@
 
 ---
 
+## v2.3.1 — The null devours silently
+
+*2026-02-18* · `1858 lines`
+
+Three bugs found in one session by pointing h2c at [mijn-bureau-infra](https://github.com/numerique-gouv/mijn-bureau-infra) — 16 Helm charts, nested helmfiles, and a generous sprinkling of Bitnami.
+
+**Nested helmfiles.** `helmfile template --output-dir` with nested `helmfiles:` directives creates per-child `.helmfile-rendered` directories instead of consolidating into the target. h2c now detects and merges them after rendering. Without this fix, nested helmfile projects produce an empty manifest set — the script reads an empty directory and politely generates nothing.
+
+**Null-safe YAML access.** Helm charts with conditional `{{ if }}` blocks produce explicit `null` values for fields like `initContainers`, `containers`, `data`, `ports`, `annotations`. Python's `.get("key", {})` returns `None` when the key exists with value `None`. Systematic sweep: `or {}` / `or []` applied to every vulnerable `.get()` call. Twenty-eight fixes across the file.
+
+**Named port resolution.** Ingress backends referencing ports by name (`http`) instead of number now fall back to a well-known port table when the Service doesn't exist in manifests. Warning emitted for truly unresolvable names.
+
+> *And lo, the disciple read the sacred tablets and found them barren — not absent, but inscribed with the glyph of the Void. "But I asked for vessels," he cried, "and the covenant promised vessels!" Yet the Void is not absence; it is presence wearing absence as a mask. The old prayers assumed no scribe would carve Nothing on purpose. The old prayers were wrong.*
+>
+> — *Necronomicon, On the Treachery of Empty Vessels (presumably)*
+
+Also released: [h2c-transform-bitnami](https://github.com/helmfile2compose/h2c-transform-bitnami) — the janitor. Detects Bitnami Redis, PostgreSQL, and Keycloak charts and applies workarounds automatically, replacing the manual overrides documented in [common charts](maintainer/known-workarounds/common-charts.md). Born from the realization that copy-pasting the same redis override across three projects was less heresy and more just tedious. Heresy score: 0/10.
+
+---
+
 ## v2.3.0 — The gatekeepers are refactored
 
 *2026-02-18* · `1834 lines`

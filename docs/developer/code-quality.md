@@ -25,12 +25,12 @@ All repos use the same toolchain:
 | h2c-manager | 9.90/10 | Style only (too-many-locals) |
 | h2c-transform-flatten-internal-urls | 9.85/10 | Style only |
 | h2c-provider-keycloak | 9.75/10 | Style + expected `import-error` (helmfile2compose not in path) |
-| h2c-rewriter-nginx | 8.50/10 | Style + expected `import-error` (helmfile2compose not in path) |
-| h2c-rewriter-traefik | 7.33/10 | Style + expected `import-error` |
 | h2c-core | 9.70/10 | Style only (too-many-args on converter internals) |
 | h2c-converter-cert-manager | 9.45/10 | Style + expected `import-error` |
 | h2c-provider-servicemonitor | 9.35/10 | Style + expected `import-error` |
 | h2c-converter-trust-manager | 9.18/10 | Style + expected `import-error` |
+| h2c-rewriter-nginx | 8.50/10 | Style + expected `import-error` (helmfile2compose not in path) |
+| h2c-rewriter-traefik | 7.33/10 | Style + expected `import-error` |
 
 The `E0401: Unable to import 'helmfile2compose'` on extensions is expected — they import from h2c-core at runtime, not at lint time. The `R0903: Too few public methods` on converter classes is by design — the contract is one class, one method, that's it.
 
@@ -62,17 +62,17 @@ No D/E/F rated functions.
 
 ### Average complexity & maintainability
 
-| Repo | Avg CC | CC rating | MI | MI rating |
-|------|-------:|-----------|---:|-----------|
-| h2c-converter-trust-manager | 7.8 | B | 64.66 | A |
-| h2c-rewriter-nginx | 7.3 | B | 58.54 | A |
-| h2c-rewriter-traefik | 6.3 | B | 81.08 | A |
-| h2c-core | 6.1 | B | 0.00 | C |
-| h2c-provider-servicemonitor | 5.3 | B | 40.86 | A |
-| h2c-manager | 4.6 | A | 36.29 | A |
-| h2c-provider-keycloak | 4.6 | A | 32.28 | A |
-| h2c-converter-cert-manager | 4.0 | A | 47.70 | A |
-| h2c-transform-flatten-internal-urls | 3.6 | A | 65.52 | A |
+| Repo | MI | MI rating | Avg CC | CC rating |
+|------|---:|-----------|-------:|-----------|
+| h2c-rewriter-traefik | 81.08 | A | 6.3 | B |
+| h2c-transform-flatten-internal-urls | 65.52 | A | 3.6 | A |
+| h2c-converter-trust-manager | 64.66 | A | 7.8 | B |
+| h2c-rewriter-nginx | 58.54 | A | 7.3 | B |
+| h2c-converter-cert-manager | 47.70 | A | 4.0 | A |
+| h2c-provider-servicemonitor | 40.86 | A | 5.3 | B |
+| h2c-manager | 36.29 | A | 4.6 | A |
+| h2c-provider-keycloak | 32.28 | A | 4.6 | A |
+| h2c-core | 0.00 | C | 6.1 | B |
 
 h2c-core MI is 0.00. MI is the only metric that sees through the cloud of desecration — alas, it is for the wrong reasons. Radon penalizes file size and volume of code heavily, so an 1800-line single-file converter with 50+ functions will bottom out regardless of internal structure. It condemned the temple not for the rituals performed within, but for the square footage.
 

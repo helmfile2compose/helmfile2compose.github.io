@@ -44,15 +44,13 @@ The name is `helmfile2compose` because both helmfile and docker-compose share th
 - **[Testing](developer/testing.md)** — regression suite, torture generator, performance tracking
 - **[Writing extensions](developer/extensions/index.md)** — converters, providers, transforms, rewriters
 
-### Extensions
-
-- **[Extension catalogue](catalogue.md)** — available providers, converters, transforms, rewriters
-
-- **[Troubleshooting](troubleshooting.md)** — when the cursed lands fight back
-
 ### Reference
 - **[Limitations](limitations.md)** — what gets lost in translation
 - **[Roadmap](roadmap.md)** — future plans
+
+**[Extension catalogue](catalogue.md)** — available providers, converters, transforms, rewriters
+
+**[Troubleshooting](troubleshooting.md)** — when the cursed lands fight back
 
 ## How it works
 

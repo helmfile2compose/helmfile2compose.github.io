@@ -70,6 +70,8 @@ Features: FQDN scrape targets (via network aliases), HTTPS scrape with CA bundle
 python3 h2c-manager.py servicemonitor
 ```
 
+Grafana saw what we did to its lifelong companion and [fought back itself](maintainer/known-workarounds/kube-prometheus-stack.md).
+
 ## Converters
 
 Converters produce synthetic resources (Secrets, ConfigMaps, files on disk) without adding compose services. They forge the documents that a K8s controller would have produced at runtime — the resources exist, but no workload runs.
@@ -117,8 +119,6 @@ Depends on the cert-manager extension (needs its generated secrets). When instal
 python3 h2c-manager.py trust-manager
 # cert-manager is installed automatically as a dependency
 ```
-
-Grafana saw what happened to its lifelong companion and did not intend to suffer the same fate — it [fought back](maintainer/known-workarounds/kube-prometheus-stack.md).
 
 ## Transforms
 

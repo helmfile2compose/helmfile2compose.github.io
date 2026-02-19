@@ -50,7 +50,7 @@ nav:
       - Writing extensions:
           - Overview: developer/extensions/index.md
           - Converters: developer/extensions/writing-converters.md
-          - CRD patterns: developer/extensions/writing-operators.md
+          - CRD patterns: developer/extensions/writing-crd-patterns.md
           - Transforms: developer/extensions/writing-transforms.md
           - Rewriters: developer/extensions/writing-rewriters.md
   - Extension catalogue: catalogue.md

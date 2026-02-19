@@ -22,7 +22,7 @@ All converters share the same code interface (`kinds` + `convert()` → `Convert
 
 The distinction is a naming convention, not a code contract — both use the same `ConvertResult`. A future v3.0 may formalize this (see [Roadmap](roadmap.md#v30--contract-split)).
 
-See [Writing converters](developer/extensions/writing-converters.md) for the generic interface. For CRD-specific patterns (synthetic resources, emulating K8s controllers), see [CRD patterns](developer/extensions/writing-operators.md).
+See [Writing converters](developer/extensions/writing-converters.md) for the generic interface. For CRD-specific patterns (synthetic resources, emulating K8s controllers), see [CRD patterns](developer/extensions/writing-crd-patterns.md).
 
 ## Providers
 
@@ -208,7 +208,7 @@ python3 h2c-manager.py traefik
 ## Writing your own
 
 - **[Writing converters](developer/extensions/writing-converters.md)** — the generic interface: `kinds`, `convert()`, `ConvertResult`, `ConvertContext`
-- **[CRD patterns](developer/extensions/writing-operators.md)** — CRD-specific patterns: synthetic resources, network alias registration
+- **[CRD patterns](developer/extensions/writing-crd-patterns.md)** — CRD-specific patterns: synthetic resources, network alias registration
 - **[Writing transforms](developer/extensions/writing-transforms.md)** — post-processing the final compose output
 - **[Writing rewriters](developer/extensions/writing-rewriters.md)** — translating ingress annotations to Caddy config
 

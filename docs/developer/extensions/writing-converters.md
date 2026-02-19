@@ -6,7 +6,7 @@ A converter is an extension that teaches helmfile2compose how to handle specific
 >
 > — *Book of Eibon, On Names and Bindings (probably²)*
 
-If your converter targets CRD kinds (replacing a K8s controller), see [CRD patterns](writing-operators.md) for additional patterns (synthetic resources, network alias registration, cross-converter dependencies).
+If your converter targets CRD kinds (replacing a K8s controller), see [CRD patterns](writing-crd-patterns.md) for additional patterns (synthetic resources, network alias registration, cross-converter dependencies).
 
 ## The contract
 
@@ -49,8 +49,8 @@ The conversion context passed to every converter. Key attributes:
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `ctx.configmaps` | `dict` | Indexed ConfigMaps (name -> manifest) |
-| `ctx.secrets` | `dict` | Indexed Secrets (name -> manifest). **Writable** — converters can inject synthetic secrets. |
+| `ctx.configmaps` | `dict` | Indexed ConfigMaps (name -> manifest). **Writable** — converters can inject synthetic ConfigMaps (see [CRD patterns](writing-crd-patterns.md)). |
+| `ctx.secrets` | `dict` | Indexed Secrets (name -> manifest). **Writable** — converters can inject synthetic secrets (see [CRD patterns](writing-crd-patterns.md)). |
 | `ctx.config` | `dict` | The `helmfile2compose.yaml` config |
 | `ctx.output_dir` | `str` | Output directory for generated files |
 | `ctx.warnings` | `list[str]` | Append warnings here (printed to stderr) |

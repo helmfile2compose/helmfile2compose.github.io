@@ -20,11 +20,11 @@ h2c-core/
 │   │   ├── __init__.py
 │   │   ├── types.py         # ConvertContext, ConvertResult
 │   │   ├── ingress.py       # IngressRewriter, get_ingress_class(), resolve_backend()
-│   │   └── helpers.py       # apply_replacements(), resolve_env(), _secret_value()
+│   │   └── helpers.py       # apply_replacements(), _secret_value()
 │   ├── core/                # internal conversion engine
 │   │   ├── __init__.py
 │   │   ├── constants.py     # regexes, kind lists, well-known ports
-│   │   ├── env.py           # env resolution, port remapping, command conversion
+│   │   ├── env.py           # resolve_env(), port remapping, command conversion
 │   │   ├── volumes.py       # volume mount conversion (PVC, ConfigMap, Secret)
 │   │   ├── services.py      # K8s Service indexing, alias maps, port maps
 │   │   ├── workloads.py     # WorkloadConverter + init/sidecar containers

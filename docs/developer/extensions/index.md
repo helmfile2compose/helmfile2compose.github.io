@@ -7,7 +7,7 @@ Before writing an extension, make sure you're familiar with [Concepts](../concep
 | Type | Interface | Page | Naming convention |
 |------|-----------|------|-------------------|
 | **Converter** | `kinds` + `convert()` | [Writing converters](writing-converters.md) | `h2c-converter-*` |
-| **Provider** | same as converter | [Writing converters](writing-converters.md) + [CRD patterns](writing-operators.md) | `h2c-provider-*` |
+| **Provider** | same as converter | [Writing converters](writing-converters.md) + [CRD patterns](writing-crd-patterns.md) | `h2c-provider-*` |
 | **Transform** | `transform()`, no `kinds` | [Writing transforms](writing-transforms.md) | `h2c-transform-*` |
 | **Ingress rewriter** | `name` + `match()` + `rewrite()` | [Writing rewriters](writing-rewriters.md) | `h2c-rewriter-*` |
 
@@ -23,6 +23,7 @@ from helmfile2compose import get_ingress_class       # resolve ingressClassName 
 from helmfile2compose import resolve_backend         # v1/v1beta1 backend → upstream dict
 from helmfile2compose import apply_replacements      # apply user-defined string replacements
 from helmfile2compose import resolve_env             # resolve env/envFrom into flat list
+from helmfile2compose import _secret_value           # decode a Secret key (base64 or plain)
 ```
 
 These are the **pacts** — the [sacred contracts](../core-architecture.md#pacts--the-sacred-contracts) — and are stable across minor versions. Both import paths work:
@@ -38,8 +39,9 @@ from helmfile2compose.pacts import ConvertContext     # explicit
 - **`resolve_backend(path_entry, manifest, ctx)`** — resolves a v1/v1beta1 Ingress backend to `{svc_name, compose_name, container_port, upstream, ns}`.
 - **`apply_replacements(text, replacements)`** — applies user-defined `replacements` (from `ctx.replacements`) to a string.
 - **`resolve_env(container, configmaps, secrets, workload_name, warnings, replacements=None, service_port_map=None)`** — resolves a container's `env` and `envFrom` into a flat `list[dict]` of `{name, value}` pairs.
+- **`_secret_value(secret, key)`** — decodes a single key from a K8s Secret dict. Handles both `stringData` (plain text) and `data` (base64-decoded). Returns `str | None`. Useful for converters that need to read Secret values injected by other converters (e.g. reading a database password from a cert-manager-generated secret). The underscore prefix is historical — the function is part of the stable pacts API.
 
-The `_`-prefixed functions (`_apply_port_remap`, `_apply_alias_map`, etc.) still exist but may change between versions. Pin your h2c-core version if you depend on them. Transforms in particular should avoid importing from the core — see [Writing transforms](writing-transforms.md#self-contained--no-core-imports).
+The other `_`-prefixed functions (`_apply_port_remap`, `_apply_alias_map`, etc.) still exist but may change between versions. Pin your h2c-core version if you depend on them. Transforms in particular should avoid importing from the core — see [Writing transforms](writing-transforms.md#self-contained--no-core-imports).
 
 ## Testing locally
 

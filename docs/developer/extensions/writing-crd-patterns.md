@@ -12,6 +12,8 @@ Read [Writing converters](writing-converters.md) first for the base interface (`
 
 Converters can inject synthetic Secrets or ConfigMaps into `ctx` for other converters or the existing volume-mount machinery to consume:
 
+### Secrets
+
 ```python
 # Inject a synthetic Secret (cert-manager pattern)
 ctx.secrets["my-tls-secret"] = {
@@ -32,6 +34,26 @@ ctx.generated_secrets.add("my-tls-secret")
 ```
 
 Use `stringData` (not `data`) to avoid double-encoding — the main pipeline handles base64 decoding for `data` entries, but synthetic secrets should use plain text.
+
+### ConfigMaps
+
+```python
+# Inject a synthetic ConfigMap (trust-manager pattern)
+ctx.configmaps["my-ca-bundle"] = {
+    "metadata": {"name": "my-ca-bundle"},
+    "data": {"ca-certificates.crt": pem_bundle},
+}
+
+# Write files to disk so volume mounts can find them
+import os
+cm_dir = os.path.join(ctx.output_dir, "configmaps", "my-ca-bundle")
+os.makedirs(cm_dir, exist_ok=True)
+with open(os.path.join(cm_dir, "ca-certificates.crt"), "w", encoding="utf-8") as f:
+    f.write(pem_bundle)
+ctx.generated_cms.add("my-ca-bundle")
+```
+
+Same principle as Secrets — inject into `ctx.configmaps` so downstream converters can read the data, and write to disk so the volume-mount machinery picks it up.
 
 ## Registering network aliases
 

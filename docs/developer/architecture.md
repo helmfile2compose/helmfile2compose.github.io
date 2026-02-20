@@ -9,7 +9,7 @@ Helm charts (helmfile / helm / kustomize)
     |  helmfile template / helm template / kustomize build
     v
 K8s manifests (Deployments, Services, ConfigMaps, Secrets, Ingress...)
-    |  helmfile2compose.py
+    |  helmfile2compose.py (distribution) / h2c.py (bare core)
     v
 compose.yml + Caddyfile + configmaps/ + secrets/
 ```
@@ -30,10 +30,16 @@ K8s manifests
 compose.yml + Caddyfile
 ```
 
-### Built-in converters
+### Built-in converters (distribution)
 
-- **`WorkloadConverter`** — kinds: DaemonSet, Deployment, Job, StatefulSet
-- **`IngressConverter`** — kinds: Ingress
+The bare h2c-core has **no** built-in converters — all registries are empty. The [helmfile2compose](https://github.com/helmfile2compose/helmfile2compose) distribution bundles 7 built-in extensions via `_auto_register()`:
+
+- **`ConfigMapIndexer`** / **`SecretIndexer`** / **`PvcIndexer`** / **`ServiceIndexer`** — index resources into `ctx` (future: `h2c-indexer-*`)
+- **`WorkloadConverter`** — kinds: DaemonSet, Deployment, Job, StatefulSet (future: `h2c-converter-workload`)
+- **`HAProxyRewriter`** — built-in ingress rewriter, haproxy + default fallback (future: `h2c-rewriter-haproxy`)
+- **`CaddyProvider`** — IngressProvider, produces a Caddy service + Caddyfile (future: `h2c-provider-caddy`)
+
+These are currently bundled in the distribution's `extensions/` directory; each will eventually become its own repo (see [Roadmap](../roadmap.md#the-distribution-becomes-a-manifest)).
 
 ### External extensions (providers and converters)
 
@@ -98,7 +104,7 @@ See [Writing rewriters](extensions/writing-rewriters.md) for the full guide.
 4. **Build port map** — K8s Service port -> container port resolution (named ports resolved via container spec). When the Service is missing from manifests, named ports fall back to a well-known port table (`http` → 80, `https` → 443, `grpc` → 50051).
 5. **Pre-register PVCs** — from both regular volumes and `volumeClaimTemplates`.
 6. **First-run init** — auto-exclude K8s-only workloads, generate default config.
-7. **Dispatch to converters** — each converter receives its kind's manifests + a `ConvertContext`. Extensions run in priority order (lower first), then built-in converters. Within `IngressConverter`, each Ingress manifest is dispatched to the first matching `IngressRewriter` (by `ingressClassName` or annotation prefix).
+7. **Dispatch to converters** — each converter receives its kind's manifests + a `ConvertContext`. Extensions run in priority order (lower first), then built-in converters. Within `IngressProvider`, each Ingress manifest is dispatched to the first matching `IngressRewriter` (by `ingressClassName` or annotation prefix).
 8. **Post-process env** — port remapping and replacements applied to all service environments (idempotent — catches extension-produced services).
 9. **Build network aliases** — for each K8s Service, add FQDN aliases (`svc.ns.svc.cluster.local`, `svc.ns.svc`, `svc.ns`) + short alias to the compose service's `networks.default.aliases`. FQDNs resolve natively via compose DNS — no hostname rewriting needed.
 10. **Apply overrides** — deep merge from config `overrides:` and `services:` sections.

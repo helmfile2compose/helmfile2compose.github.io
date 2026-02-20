@@ -28,7 +28,7 @@ Auto-detects OS/arch, downloads, verifies checksum, installs to `/usr/local/bin`
 **Helmfile:**
 
 ```bash
-curl -sL https://github.com/helmfile/helmfile/releases/download/v1.2.3/helmfile_1.2.3_linux_amd64.tar.gz | tar -xzf - helmfile
+curl -sL https://github.com/helmfile/helmfile/releases/download/v1.3.0/helmfile_1.3.0_linux_amd64.tar.gz | tar -xzf - helmfile
 sudo mv helmfile /usr/local/bin/
 ```
 
@@ -73,3 +73,7 @@ docker inspect <container> --format '{{ .NetworkSettings.Networks }}'
 If two containers from different projects share the same alias on the same network, you found it.
 
 In practice, short alias collisions are rare — they only appear when the K8s Service name differs from the compose service name, which is uncommon. But if you run multiple projects on a shared network and something resolves to the wrong service: you angered the gods by putting two desecrated temples on the same street. Now enjoy the tentacles. Actions, consequences.
+
+---
+
+Still stuck? Open an issue on the [helmfile2compose repo](https://github.com/helmfile2compose/helmfile2compose/issues). Include the error, your `helmfile2compose.yaml`, and which extensions you're using. The abyss stares back, but it occasionally answers.

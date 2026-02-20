@@ -1,12 +1,14 @@
 # Writing converters
 
-A converter is an extension that teaches helmfile2compose how to handle specific Kubernetes resource kinds. Each converter is a single `.py` file with a converter class.
+A converter is an extension that teaches h2c how to handle specific Kubernetes resource kinds. Each converter is a single `.py` file with a converter class.
 
 > *To name a thing is to summon it. To teach another its name is to bind your fate to what answers.*
 >
 > — *Book of Eibon, On Names and Bindings (probably²)*
 
-If your converter targets CRD kinds (replacing a K8s controller), see [CRD patterns](writing-crd-patterns.md) for additional patterns (synthetic resources, network alias registration, cross-converter dependencies).
+If your converter targets CRD kinds (replacing a K8s controller), see [CRD patterns](writing-crd-patterns.md) for additional patterns (synthetic resources, network alias registration, cross-converter dependencies). For Ingress-specific reverse proxy backends, see [Writing ingress providers](writing-ingressproviders.md).
+
+Note: the distinction between converters (`h2c-converter-*`) and providers (`h2c-provider-*`) is enforced — `Provider` is a base class in `h2c.pacts.types`. Providers produce compose services; converters produce synthetic resources. Both use `ConvertResult`, but subclassing `Provider` signals your intent to the framework.
 
 ## The contract
 
@@ -16,7 +18,7 @@ A converter class must have:
 2. **`convert(kind, manifests, ctx)`** — called once per kind, returns a `ConvertResult`
 
 ```python
-from helmfile2compose import ConvertResult
+from h2c import ConvertResult
 
 class MyConverter:
     kinds = ["MyCustomResource"]
@@ -62,6 +64,7 @@ The conversion context passed to every converter. Key attributes:
 | `ctx.fix_permissions` | `dict[str, int]` | Map of volume path -> UID. Entries generate a `fix-permissions` service that runs `chown -R <uid>` on the path. **Writable** — converters can register paths for non-root containers with bind mounts. |
 | `ctx.services_by_selector` | `dict` | Index of K8s Services by name. Each entry has `name`, `namespace`, `selector`, `type`, `ports`. Used to resolve Services to compose names, generate network aliases, and build port maps. **Writable** — converters should register runtime-created Services here. |
 | `ctx.pvc_names` | `set[str]` | Names of PersistentVolumeClaims discovered in manifests. Used to distinguish PVC mounts from other volume types during conversion. |
+| `ctx.extension_config` | `dict` | Per-converter config section from `helmfile2compose.yaml`. Set automatically before each `convert()` call, keyed by the converter's `name` attribute (e.g. `caddy` → `extensions.caddy` in config). Empty dict if not configured. |
 
 ### Priority
 
@@ -77,7 +80,7 @@ This matters when converters depend on each other's output (e.g. trust-manager n
 
 ### Multi-kind dispatch
 
-If your converter handles multiple kinds and needs to process them in order, use the `kind` argument:
+If your converter handles multiple kinds and needs to process them in order, use the `kind` argument. `convert()` is called once per kind, in the order they appear in the `kinds` list:
 
 ```python
 class MyConverter:

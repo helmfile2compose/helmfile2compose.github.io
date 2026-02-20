@@ -16,7 +16,7 @@ A rewriter class must have:
 4. **`priority`** *(optional)* — integer, default `100`. Lower = checked earlier. External rewriters are always checked before built-in ones, regardless of priority. Priority only orders rewriters within the same pool (external or built-in).
 
 ```python
-from helmfile2compose import IngressRewriter, get_ingress_class, resolve_backend
+from h2c import IngressRewriter, get_ingress_class, resolve_backend
 
 class NginxRewriter(IngressRewriter):
     name = "nginx"
@@ -104,7 +104,9 @@ ingressTypes:
 
 The mapping is applied before rewriter dispatch — rewriters see the canonical name. Without it, custom class names won't match any rewriter and the Ingress is skipped with a warning.
 
-Inside your rewriter, use `get_ingress_class(manifest, ctx.config.get("ingressTypes", {}))` to get the resolved class name. Both `get_ingress_class` and `resolve_backend` are part of the public interface — import them from `helmfile2compose`.
+Inside your rewriter, use `get_ingress_class(manifest, ctx.config.get("ingressTypes", {}))` to get the resolved class name. Both `get_ingress_class` and `resolve_backend` are part of the public interface — import them from `h2c`.
+
+For building a complete reverse proxy backend (not just an annotation translator), see [Writing ingress providers](writing-ingressproviders.md).
 
 ## Override mechanism
 

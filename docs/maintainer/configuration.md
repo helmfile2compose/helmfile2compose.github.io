@@ -171,12 +171,22 @@ If set, generates a global Caddy block for automatic HTTPS certificate provision
 
 If `true`, adds `tls internal` to all Caddyfile host blocks. Forces Caddy to use its internal CA for all domains (useful for `.local` development domains).
 
-### `core_version`
+### `distribution_version`
 
-Pin the h2c-core version for [h2c-manager](h2c-manager.md). Ignored by h2c-core itself.
+Pin the distribution version for [h2c-manager](h2c-manager.md). Ignored by helmfile2compose itself.
 
 ```yaml
-core_version: v2.3.0
+distribution_version: v3.0.0
+```
+
+`core_version` is accepted as a backwards-compatible alias.
+
+### `distribution`
+
+Select which distribution h2c-manager installs. Default: `helmfile2compose`. Use `core` for the bare engine (`h2c.py`).
+
+```yaml
+distribution: helmfile2compose
 ```
 
 ### `depends`

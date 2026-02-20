@@ -1,6 +1,6 @@
 # h2c-manager
 
-h2c-manager is a lightweight package manager for helmfile2compose. It downloads the core script and extensions from GitHub releases. Python 3, stdlib only — no dependencies.
+h2c-manager is a lightweight package manager for helmfile2compose. It downloads the distribution script and extensions from GitHub releases. Python 3, stdlib only — no dependencies.
 
 ## Installation
 
@@ -13,17 +13,17 @@ curl -fsSL https://raw.githubusercontent.com/helmfile2compose/h2c-manager/main/h
 ## Usage
 
 ```bash
-# Core only (no extensions)
+# Distribution only (no extensions)
 python3 h2c-manager.py
 
-# Core + keycloak extension
+# Distribution + keycloak extension
 python3 h2c-manager.py keycloak
 
-# Core + multiple extensions
+# Distribution + multiple extensions
 python3 h2c-manager.py keycloak cert-manager trust-manager
 
-# Pin core version
-python3 h2c-manager.py --core-version v2.3.0 keycloak
+# Pin distribution version
+python3 h2c-manager.py --distribution-version v3.0.0 keycloak
 
 # Pin extension version
 python3 h2c-manager.py keycloak==0.2.0
@@ -58,7 +58,7 @@ h2c-manager creates the following directory structure:
 
 ```
 .h2c/
-├── helmfile2compose.py       # core script
+├── helmfile2compose.py       # distribution script
 └── extensions/
     ├── keycloak.py            # requested extension
     └── cert_manager.py         # auto-resolved dependency
@@ -74,7 +74,7 @@ python3 h2c-manager.py run -e compose
 # python3 .h2c/helmfile2compose.py --helmfile-dir . --extensions-dir .h2c/extensions --output-dir . -e compose
 ```
 
-By default, `run` re-downloads h2c-core and all extensions before every invocation, overwriting cached files. Versions follow normal resolution: latest release, or the pinned version from `helmfile2compose.yaml` / CLI flags. If you change a pin in the yaml, the next `run` picks it up.
+By default, `run` re-downloads the distribution and all extensions before every invocation, overwriting cached files. Versions follow normal resolution: latest release, or the pinned version from `helmfile2compose.yaml` / CLI flags. If you change a pin in the yaml, the next `run` picks it up.
 
 Use `--no-reinstall` to skip downloads for files already present in `.h2c/` (missing files are still fetched). There is no version tracking: a cached file is either kept as-is or replaced with whatever version resolves. No in-between.
 
@@ -84,10 +84,10 @@ Defaults: `--helmfile-dir .`, `--extensions-dir .h2c/extensions` (if it exists),
 
 ## Version resolution
 
-### Core
+### Distribution
 
 - No flag: latest GitHub release of `helmfile2compose/helmfile2compose`
-- `--core-version v2.3.0`: exact tag
+- `--distribution-version v3.0.0`: exact tag. The `v` prefix is added automatically if missing.
 
 ### Extensions
 
@@ -102,7 +102,7 @@ Extensions can declare dependencies in the registry. For example, `trust-manager
 
 ```bash
 python3 h2c-manager.py trust-manager
-# Fetching h2c-core v2.3.0...
+# Fetching helmfile2compose (latest)...
 # Fetching extension cert-manager (dependency of trust-manager)...
 # Fetching extension trust-manager...
 ```
@@ -169,29 +169,34 @@ See [Writing extensions — publishing](../developer/extensions/index.md#publish
 
 ## Declarative dependencies
 
-If `helmfile2compose.yaml` exists, h2c-manager reads `core_version` and `depends` from it:
+If `helmfile2compose.yaml` exists, h2c-manager reads `distribution`, `distribution_version`, and `depends` from it:
 
 ```yaml
 # helmfile2compose.yaml
-core_version: v2.3.0
+distribution: helmfile2compose    # optional — default is helmfile2compose
+distribution_version: v3.0.0
 depends:
   - keycloak
   - cert-manager==0.1.0
   - trust-manager
 ```
 
+The `distribution` key selects which distribution to install. Available distributions are listed in the `distributions.json` registry. Use `core` for the bare engine (`h2c.py`) or omit the key for the default full distribution.
+
 ```bash
 python3 h2c-manager.py
-# Core version from helmfile2compose.yaml: v2.3.0
-# Fetching h2c-core v2.3.0...
+# Distribution version from helmfile2compose.yaml: v3.0.0
+# Fetching helmfile2compose v3.0.0...
 # Reading extensions from helmfile2compose.yaml: keycloak, cert-manager==0.1.0, trust-manager
 # Fetching extension keycloak v0.2.0...
 # ...
 ```
 
-CLI flags override the yaml: `--core-version` overrides `core_version`, explicit extension args override `depends`. This keeps behavior predictable: either the yaml drives it, or you drive it.
+CLI flags override the yaml: `--distribution-version` overrides `distribution_version`, explicit extension args override `depends`. This keeps behavior predictable: either the yaml drives it, or you drive it.
 
-h2c-manager also checks that `pyyaml` is installed (required by h2c-core) and warns alongside any extension-specific missing dependencies.
+`core_version` is accepted as a backwards-compatible alias for `distribution_version`. The `v` prefix is added automatically if missing (`3.0.0` → `v3.0.0`).
+
+h2c-manager also checks that `pyyaml` is installed (required by helmfile2compose) and warns alongside any extension-specific missing dependencies.
 
 ## Integration with generate-compose.sh
 

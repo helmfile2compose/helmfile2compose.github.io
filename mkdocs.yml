@@ -43,8 +43,8 @@ nav:
       - h2c-manager: maintainer/h2c-manager.md
   - Developer guide:
       - Concepts: developer/concepts.md
-      - Architecture: developer/architecture.md
-      - Core architecture: developer/core-architecture.md
+      - Conversion pipeline: developer/architecture.md
+      - Module layout: developer/core-architecture.md
       - Code quality: developer/code-quality.md
       - Testing: developer/testing.md
       - Writing extensions:
@@ -53,6 +53,9 @@ nav:
           - CRD patterns: developer/extensions/writing-crd-patterns.md
           - Transforms: developer/extensions/writing-transforms.md
           - Rewriters: developer/extensions/writing-rewriters.md
+          - Ingress providers: developer/extensions/writing-ingressproviders.md
+      - Distributions: developer/distributions.md
+      - Build system: developer/build-system.md
   - Extension catalogue: catalogue.md
   - Troubleshooting: troubleshooting.md
   - Reference:

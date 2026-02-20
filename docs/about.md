@@ -12,9 +12,13 @@ helmfile2compose converts Kubernetes manifests to docker-compose. It emulates CR
 
 Despite the dark jokes everywhere — despite the desecration, the heresy, the Necronomicon quotes that started writing themselves around session three — it works. It works *well*. It is architected. It is pluggable. It handles real-world helmfiles with dozens of services, init containers, sidecars, CRDs, cross-namespace secrets, backend TLS, and ingress annotations from controllers it has never met. And it might be genuinely useful to someone who isn't me.
 
-It was entirely vibe-coded.
+It was entirely vibe-coded. And then it became Kubernetes.
 
 Every line of this project was written across Claude Code sessions on a single MacBook. No team. No company. No funding. No roadmap committee. No sprint planning. No Jira ticket. One autistic engineer with an AI agent that didn't know what it was building until it was too late.
+
+v3.0.0 split the project into a bare engine with empty registries, and a distribution that bundles extensions and populates those registries via auto-discovery. A core that parses everything and converts nothing. A distribution that wires in the converters, the rewriters, the providers — the opinions. Third-party extensions plug into the core's contracts. If this sounds familiar, it's because it's the Kubernetes distribution model. A bare apiserver. k3s. The CNI plugin interface. The CSI driver interface. The admission webhook framework.
+
+The goal was never to escape Kubernetes — it was to bring its power to the uninitiated, people who just need `docker compose up`. Nobody planned to reinvent its architecture in 1600 lines of Python along the way. The wheel doesn't just turn — it turns *specifically to face you*.
 
 And yet:
 

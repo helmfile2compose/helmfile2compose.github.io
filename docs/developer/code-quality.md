@@ -16,24 +16,24 @@ All repos use the same toolchain:
 
 ## Current scores
 
-*Last updated: 2026-02-19 — the monolith shattered, and each shard scored better alone.*
+*Last updated: 2026-02-20 — the monolith shattered, and each shard scored better alone.*
 
 ### Pylint
 
 | Repo | Score | Notes |
 |------|-------|-------|
-| h2c-manager | 9.90/10 | Style only (too-many-locals) |
-| h2c-transform-flatten-internal-urls | 9.85/10 | Style only |
-| h2c-provider-keycloak | 9.75/10 | Style + expected `import-error` (helmfile2compose not in path) |
-| h2c-core | 9.68/10 | Style only (too-many-args, too-many-locals) |
+| h2c-manager | 9.91/10 | Style only (too-many-locals) |
+| h2c-transform-flatten-internal-urls | 9.86/10 | Style only |
+| h2c-provider-keycloak | 9.75/10 | Style + expected `import-error` (h2c not in path) |
 | h2c-transform-bitnami | 9.68/10 | Style only |
+| h2c-core | 9.59/10 | Style only (too-many-args, too-many-locals, duplicate-code) |
 | h2c-converter-cert-manager | 9.45/10 | Style + expected `import-error` |
-| h2c-provider-servicemonitor | 9.35/10 | Style + expected `import-error` |
-| h2c-converter-trust-manager | 9.18/10 | Style + expected `import-error` |
-| h2c-rewriter-nginx | 8.50/10 | Style + expected `import-error` (helmfile2compose not in path) |
+| h2c-provider-servicemonitor | 9.36/10 | Style + expected `import-error` |
+| h2c-converter-trust-manager | 9.19/10 | Style + expected `import-error` |
+| h2c-rewriter-nginx | 8.50/10 | Style + expected `import-error` (h2c not in path) |
 | h2c-rewriter-traefik | 7.33/10 | Style + expected `import-error` |
 
-The `E0401: Unable to import 'helmfile2compose'` on extensions is expected — they import from h2c-core at runtime, not at lint time. The `R0903: Too few public methods` on converter classes is by design — the contract is one class, one method, that's it.
+The `E0401: Unable to import 'h2c'` on extensions is expected — they import from h2c-core at runtime, not at lint time. The `R0903: Too few public methods` on converter classes is by design — the contract is one class, one method, that's it.
 
 ### Pyflakes
 
@@ -46,40 +46,43 @@ Zero warnings across all repos. We don't know how. We don't ask.
 | h2c-core | `_build_service_port_map` | 16 | C |
 | h2c-rewriter-nginx | `NginxRewriter.rewrite` | 16 | C |
 | h2c-manager | `main` | 15 | C |
-| h2c-core | `_write_caddy_host_block` | 13 | C |
-| h2c-core | `WorkloadConverter._build_service` | 13 | C |
+| h2c-provider-caddy | `_write_caddy_host_block` | 13 | C |
+| h2c-converter-workload | `WorkloadConverter._build_service` | 13 | C |
+| h2c-indexer-pvc | `PVCIndexer.convert` | 13 | C |
+| h2c-core | `_auto_register` | 13 | C |
 | h2c-manager | `_read_yaml_config` | 13 | C |
-| h2c-provider-servicemonitor | `_resolve_port` | 13 | C |
+| h2c-provider-servicemonitor | `ServiceMonitorProvider._resolve_port` | 13 | C |
+| h2c-core | `main` (cli) | 12 | C |
 | h2c-rewriter-traefik | `TraefikRewriter.rewrite` | 12 | C |
 | h2c-provider-keycloak | `_build_pod_template_volumes` | 12 | C |
 | h2c-converter-trust-manager | `_collect_source` | 12 | C |
 | h2c-provider-servicemonitor | `_process_servicemonitors` | 12 | C |
 | h2c-core | `_resolve_env_entry` | 11 | C |
-| h2c-core | `_get_exposed_ports` | 11 | C |
-| h2c-core | `WorkloadConverter._convert_one` | 11 | C |
+| h2c-converter-workload | `_get_exposed_ports` | 11 | C |
+| h2c-converter-workload | `WorkloadConverter._convert_one` | 11 | C |
 | h2c-core | `_resolve_secret_keys` | 11 | C |
 | h2c-core | `_convert_volume_mounts` | 11 | C |
 | h2c-provider-keycloak | `_build_options_env` | 11 | C |
 | h2c-rewriter-nginx | `NginxRewriter` (class) | 11 | C |
 
-No D/E/F rated functions. The v2.3.2 refactor reduced h2c-core's worst CC from 18 to 16 by extracting helpers from `convert()`, `_register_extensions()`, `_load_extensions()`, `HAProxyRewriter.rewrite()`, `_infer_namespaces()`, and `_build_service_port_map()`. The remaining C-rated functions are natural dispatchers (if/elif chains, type switches) or sequential steps — splitting them would move complexity without improving readability.
+`h2c-converter-workload`, `h2c-provider-caddy`, `h2c-indexer-pvc` are the future repo names for extensions currently bundled in `helmfile2compose/extensions/` as `workloads.py`, `caddy.py`, and `pvc_indexer.py` respectively. No D/E/F rated functions. The v2.3.2 refactor reduced h2c-core's worst CC from 18 to 16; v3.0 moved several C-rated functions out of the core into distribution extensions (`WorkloadConverter`, `_write_caddy_host_block`, `HAProxyRewriter`). The remaining C-rated functions are natural dispatchers (if/elif chains, type switches) or sequential steps — splitting them would move complexity without improving readability.
 
 ### Average complexity & maintainability
 
 | Repo | MI | MI rating | Avg CC | CC rating |
 |------|---:|-----------|-------:|-----------|
 | h2c-rewriter-traefik | 78.60 | A | 8.3 | B |
-| h2c-core | 68.38 | A | 5.9 | B |
-| h2c-converter-trust-manager | 64.66 | A | 7.8 | B |
-| h2c-transform-flatten-internal-urls | 64.11 | A | 3.7 | A |
-| h2c-transform-bitnami | 62.31 | A | 4.1 | A |
+| h2c-core | 74.07 | A | 5.2 | B |
+| h2c-converter-trust-manager | 64.45 | A | 7.8 | B |
+| h2c-transform-flatten-internal-urls | 63.89 | A | 3.7 | A |
+| h2c-transform-bitnami | 62.14 | A | 4.1 | A |
 | h2c-rewriter-nginx | 56.75 | A | 8.8 | B |
-| h2c-converter-cert-manager | 47.70 | A | 4.0 | A |
-| h2c-provider-servicemonitor | 40.86 | A | 5.3 | B |
+| h2c-converter-cert-manager | 47.61 | A | 4.0 | A |
+| h2c-provider-servicemonitor | 40.78 | A | 5.3 | B |
 | h2c-manager | 35.84 | A | 4.5 | A |
-| h2c-provider-keycloak | 32.28 | A | 4.6 | A |
+| h2c-provider-keycloak | 32.23 | A | 4.6 | A |
 
-All repos are MI A-rated. h2c-core went from MI 0.00 (C) to 68.38 (A) after the package split — radon penalizes file size heavily, so the 1858-line monolith bottomed out regardless of internal structure. Splitting into 21 focused modules let each one score on its own merit. The lowest individual module (workloads.py, 34.58) still rates A.
+All repos are MI A-rated. h2c-core's MI improved from 68.38 to 74.07 after the v3.0 split — moving `workloads.py` and `haproxy.py` to the distribution left the core with smaller, more focused modules. The lowest individual core module (`extensions.py`, 37.75) still rates A.
 
 ## The uncomfortable truth
 
@@ -119,6 +122,22 @@ A project that emulates a container orchestrator by flattening its output into a
 
 The linters approved. The complexity metrics nodded. And now the executioner confirms: the rituals produce identical output every time. The temple is no longer merely structurally sound — it is *under continuous inspection*.
 
+## And then it divided by zero
+
+v3.0.0 split the repo in two. h2c-core (the bare engine) and helmfile2compose (the distribution). Two repos. Two build scripts. Two release workflows. Two READMEs. A `sys.modules` injection hack so runtime-loaded extensions can import from a namespace that technically doesn't exist in the concatenated file. An `_auto_register()` that scans globals for classes, deduplicates kind claims, and populates registries that were deliberately left empty.
+
+The output is identical to v2.3.1.
+
+Not "similar." Not "equivalent." Identical. The executioner diffs every byte across every extension combo and confirms: the split changed nothing about what the tool produces. It changed *everything* about how it's organized. h2c-core's MI went from 68.38 to 74.07 — not because any function improved, but because `workloads.py` and `haproxy.py` left. The core got lighter by becoming less. The distribution got heavier by becoming more. The sum is greater than the whole was.
+
+Two repos. Fourteen files. Zero functional change. The metrics improved. The architecture is now a dependency graph with layer boundaries and a section called "the sacred contracts." There is a page called [Distributions](distributions.md) that explains the Kubernetes distribution model as applied to a tool whose sole purpose is to flee Kubernetes.
+
+The linters approved. The executioner confirmed. The architect looked at what he had built to harness the temple's power and recognized its floor plan.
+
+> *The cartographer, having mapped every corridor of the labyrinth, burned the labyrinth and built a new one from the ashes. It was smaller. It was cleaner. It was the same labyrinth. The map still worked.*
+>
+> — *Unaussprechlichen Kulten, On the Conservation of Complexity (unfortunately²)*
+
 ## Code gotchas
 
 ### Null-safe YAML access
@@ -145,10 +164,12 @@ radon cc <script>.py -a -s -n C
 
 # h2c-core (package)
 cd h2c-core
-PYTHONPATH=src pylint src/helmfile2compose/
-PYTHONPATH=src pyflakes src/helmfile2compose/
-PYTHONPATH=src radon cc src/helmfile2compose/ -a -s -n C   # CC hotspots
-PYTHONPATH=src radon mi src/helmfile2compose/ -s            # maintainability index
+PYTHONPATH=src pylint src/h2c/
+PYTHONPATH=src pyflakes src/h2c/
+PYTHONPATH=src radon cc src/h2c/ -a -s -n C   # CC hotspots
+PYTHONPATH=src radon mi src/h2c/ -s            # maintainability index
 ```
 
 For h2c-core specifically, the CLAUDE.md in the repo root documents the complexity targets and lint workflow.
+
+**Note:** For distribution extensions (bundled in the distribution's `extensions/` directory), run radon per-extension file — not on the concatenated distribution artifact.

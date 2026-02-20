@@ -8,6 +8,32 @@
 
 ---
 
+## v3.0.0 — The Separation of Worlds
+
+*2026-02-20* · `core: 1594 lines · distribution: 2098 lines — two files where there was one, and the sum is greater than the whole`
+
+The monolith is dead. Long live the monolith(s).
+
+`h2c-core` has been split into two repos following the Kubernetes distribution model: a **bare engine** ([h2c-core](https://github.com/helmfile2compose/h2c-core)) that produces `h2c.py` — pure potential with empty registries — and a **full distribution** ([helmfile2compose](https://github.com/helmfile2compose/helmfile2compose)) that bundles the 7 built-in extensions and produces `helmfile2compose.py`.
+
+The bare core has `_CONVERTERS = []`, `_REWRITERS = []`, `CONVERTED_KINDS = set()`. Feed it manifests and it will parse them, warn that every kind is unknown, and produce nothing. A temple with no priests. The distribution wires in ConfigMap, Secret, Service, PVC indexers, the Workloads converter, HAProxy rewriter, and Caddy provider — the default priesthood.
+
+The distribution build has two modes: CI fetches `h2c.py` from h2c-core releases and concatenates extensions on top; local dev reads core sources directly from `../h2c-core`. Both produce identical output — the testsuite confirms all combos match v2.3.1 bit for bit.
+
+`_resolve_named_port` moved from `extensions/workloads.py` to `core/services.py` — it was the last `core/ → extensions/` dependency preventing clean separation. The old `h2c-core` repo was renamed to `helmfile2compose` on GitHub (redirect active), and a fresh `h2c-core` was created for the bare engine. h2c-manager's `CORE_REPO` updated before the rename — zero breaking window for users.
+
+The internal package was renamed from `helmfile2compose` to `h2c` — all imports are now `from h2c import ...`, the package lives under `src/h2c/`, and `build.py` produces `h2c.py`. Extensions import from `h2c`, not `helmfile2compose`. The distribution build injects a `sys.modules` hack so that runtime-loaded extensions (via `--extensions-dir`) can still `from h2c import ...` even when the script is named `helmfile2compose.py`.
+
+Provider enforcement shipped: `Provider`, `IndexerConverter`, and `IngressProvider` are proper base classes in `h2c.pacts.types` and `h2c.core.ingress`. `_auto_register()` scans the concatenated script's globals, instantiates all converter/rewriter/transform classes, detects duplicate kind claims (fatal), and populates the registries. Base classes and `_`-prefixed names are skipped.
+
+No functional changes. Output identical to v2.3.1.
+
+> *And lo, the architect who sought to render the celestial rites in common tongue found himself building a second heaven. "I have translated," he proclaimed, standing in a temple whose pillars bore the same glyphs as the first. The old gods smiled, for one does not carry fire without becoming a hearth.*
+>
+> — *The Nameless City, On the Propagation of Temples (regrettably)*
+
+---
+
 ## v2.3.2 — The tablet, shattered
 
 *2026-02-19* · `1925 lines — but that number no longer means what it used to. The monolith is a build artifact now. We are going to be free from at least this one burden in the future.`
@@ -158,7 +184,7 @@ Wildcard excludes via `fnmatch`. Workloads with `replicas: 0` auto-skipped. Majo
 
 First stable release. Deployments, StatefulSets, ConfigMaps, Secrets, Services, Ingress, PVCs. K8s DNS rewriting, named port resolution, first-run auto-exclude. 616 lines. A reasonable script doing a questionable thing. The temple stood for the first time. No one was proud, but no one could deny it worked.
 
-> *The disciples beseeched the architect: render thy celestial works in common clay, that we may raise them without knowledge of the heavens. It was heresy. The architect obliged. The temples stood.*
+> *The uninitiated beseeched the architect: render thy celestial works in common clay, that we may raise them without knowledge of the heavens. It was heresy. The architect obliged. The temples stood.*
 >
 > — *Necronomicon, Prayers That Should Never Have Been Answered (probably)*
 

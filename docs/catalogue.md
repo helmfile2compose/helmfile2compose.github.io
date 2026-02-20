@@ -6,10 +6,11 @@ CRDs are K8s entities that don't speak compose — exiles from a world with cont
 
 ## Extension types
 
-There are four extension types, all loaded from the same `--extensions-dir`:
+There are five extension types, all loaded from the same `--extensions-dir`:
 
 | Type | Interface | Purpose | Naming convention |
 |------|-----------|---------|-------------------|
+| **IndexerConverter** | `kinds` + `convert()` | Populate `ConvertContext` lookups (configmaps, secrets, PVCs, services) without producing services | `h2c-indexer-*` |
 | **Converter** | `kinds` + `convert()` | Handle K8s resource kinds, produce synthetic resources (Secrets, ConfigMaps) | `h2c-converter-*` |
 | **Provider** | `kinds` + `convert()` | Handle K8s resource kinds, produce compose services (and possibly resources) | `h2c-provider-*` |
 | **Transform** | `transform()`, no `kinds` | Post-process the final compose output after converters | `h2c-transform-*` |
@@ -20,9 +21,9 @@ All converters share the same code interface (`kinds` + `convert()` → `Convert
 - **`h2c-converter-*`** — produces synthetic resources (Secrets, ConfigMaps, files on disk) without adding compose services. The extension *converts* K8s resources into other resources. Examples: cert-manager generates PEM certificates as Secrets, trust-manager assembles CA bundles as ConfigMaps.
 - **`h2c-provider-*`** — produces compose services (and possibly resources too). The extension *provides* running containers that emulate what a K8s controller would have created. Examples: keycloak turns a CR into a compose service, servicemonitor produces a Prometheus service with baked-in scrape config.
 
-The distinction is a naming convention, not a code contract — both use the same `ConvertResult`. A future v3.0 may formalize this (see [Roadmap](roadmap.md#v30--contract-split)).
+The distinction is enforced: `Provider` is a base class in `h2c.pacts.types`. Subclassing it signals that the extension produces compose services.
 
-See [Writing converters](developer/extensions/writing-converters.md) for the generic interface. For CRD-specific patterns (synthetic resources, emulating K8s controllers), see [CRD patterns](developer/extensions/writing-crd-patterns.md).
+See [Writing converters](developer/extensions/writing-converters.md) for the generic interface. For CRD-specific patterns (synthetic resources, emulating K8s controllers), see [CRD patterns](developer/extensions/writing-crd-patterns.md). For reverse proxy providers, see [Writing ingress providers](developer/extensions/writing-ingressproviders.md).
 
 ## Providers
 
@@ -35,7 +36,7 @@ Providers produce compose services — they emulate what a K8s controller would 
 | **Repo** | [h2c-provider-keycloak](https://github.com/helmfile2compose/h2c-provider-keycloak) |
 | **Kinds** | `Keycloak`, `KeycloakRealmImport` |
 | **Dependencies** | none |
-| **Priority** | 50 |
+| **Priority** | 500 |
 | **Produces** | compose services + realm JSON files |
 | **Status** | stable |
 
@@ -56,7 +57,7 @@ python3 h2c-manager.py keycloak
 | **Repo** | [h2c-provider-servicemonitor](https://github.com/helmfile2compose/h2c-provider-servicemonitor) |
 | **Kinds** | `Prometheus`, `ServiceMonitor` |
 | **Dependencies** | none |
-| **Priority** | 60 |
+| **Priority** | 600 |
 | **Produces** | compose services + prometheus.yml |
 | **Status** | stable |
 
@@ -83,7 +84,7 @@ Converters produce synthetic resources (Secrets, ConfigMaps, files on disk) with
 | **Repo** | [h2c-converter-cert-manager](https://github.com/helmfile2compose/h2c-converter-cert-manager) |
 | **Kinds** | `Certificate`, `ClusterIssuer`, `Issuer` |
 | **Dependencies** | `cryptography` (Python package) |
-| **Priority** | 10 |
+| **Priority** | 100 |
 | **Produces** | synthetic Secrets (PEM certificates) |
 | **Status** | stable |
 
@@ -107,7 +108,7 @@ pip install cryptography  # required dependency
 | **Repo** | [h2c-converter-trust-manager](https://github.com/helmfile2compose/h2c-converter-trust-manager) |
 | **Kinds** | `Bundle` |
 | **Dependencies** | `cert-manager` extension; optional `certifi` (falls back to system CA paths) |
-| **Priority** | 20 |
+| **Priority** | 200 |
 | **Produces** | synthetic ConfigMaps (CA bundles) |
 | **Status** | stable |
 
@@ -130,7 +131,7 @@ Transforms are extensions that modify the final compose output *after* converter
 |---|---|
 | **Repo** | [h2c-transform-flatten-internal-urls](https://github.com/helmfile2compose/h2c-transform-flatten-internal-urls) |
 | **Dependencies** | none |
-| **Priority** | 200 |
+| **Priority** | 2000 |
 | **Incompatible with** | `cert-manager` |
 | **Status** | stable |
 
@@ -154,7 +155,7 @@ python3 h2c-manager.py flatten-internal-urls
 |---|---|
 | **Repo** | [h2c-transform-bitnami](https://github.com/helmfile2compose/h2c-transform-bitnami) |
 | **Dependencies** | none |
-| **Priority** | 150 |
+| **Priority** | 1500 |
 | **Status** | stable |
 
 The janitor. Bitnami charts — Redis, PostgreSQL, Keycloak — wrap standard images in custom entrypoints, init containers, and volume conventions that assume a full Kubernetes environment. In compose, the entrypoints fail, the volumes don't line up, and the init containers crash on missing emptyDirs. The workarounds are well-documented in [common charts](maintainer/known-workarounds/common-charts.md) — this transform applies them automatically so you don't have to copy-paste overrides across projects.
@@ -205,11 +206,30 @@ Warning: untested. May or may not work. Can't tell. Use HAProxy.
 python3 h2c-manager.py traefik
 ```
 
+## Ingress providers
+
+Ingress providers are a special kind of provider — they handle Ingress manifests and produce a reverse proxy service + config file. Unlike rewriters (which translate annotations), ingress providers own the entire reverse proxy lifecycle: service creation, config generation, rewriter dispatch.
+
+### caddy (built-in)
+
+| | |
+|---|---|
+| **Type** | distribution built-in |
+| **Kinds** | `Ingress` |
+| **Priority** | 900 |
+| **Produces** | Caddy compose service + Caddyfile |
+| **Status** | stable |
+
+The default ingress provider bundled with the helmfile2compose distribution. Dispatches each Ingress manifest to the first matching rewriter, collects entries, builds a Caddy service with CA cert mounts, and writes a Caddyfile with host blocks. Supports `disableCaddy` mode, `tls internal`, backend SSL via trust pools, `extra_directives`, and `strip_prefix`.
+
+This is the reference implementation for `IngressProvider`. See [Writing ingress providers](developer/extensions/writing-ingressproviders.md) to build your own.
+
 ## Writing your own
 
 - **[Writing converters](developer/extensions/writing-converters.md)** — the generic interface: `kinds`, `convert()`, `ConvertResult`, `ConvertContext`
 - **[CRD patterns](developer/extensions/writing-crd-patterns.md)** — CRD-specific patterns: synthetic resources, network alias registration
 - **[Writing transforms](developer/extensions/writing-transforms.md)** — post-processing the final compose output
 - **[Writing rewriters](developer/extensions/writing-rewriters.md)** — translating ingress annotations to Caddy config
+- **[Writing ingress providers](developer/extensions/writing-ingressproviders.md)** — replacing the reverse proxy backend entirely
 
 Drop it in a `.py` file, and either use `--extensions-dir` locally or publish it as a GitHub repo for h2c-manager distribution. The abyss is open for contributions.

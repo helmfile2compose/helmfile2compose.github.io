@@ -1,8 +1,13 @@
 # helmfile2compose
 
+> *And lo, the architect who sought to render the celestial rites in common tongue found himself building a second heaven. "I have translated," he proclaimed, standing in a temple whose pillars bore the same glyphs as the first. The old gods smiled, for one does not carry fire without becoming a hearth.*
+>
+> — *The Nameless City, On the Propagation of Temples (regrettably)*
+
+
 *For when you just wanted to maintain a nice helmfile but people kept asking for a docker-compose — then it got REALLY out of hand*
 
-Convert Kubernetes manifests to `compose.yml` + `Caddyfile`. Not Kubernetes-in-Docker (kind, k3d, minikube...) — no cluster, no kubelet, no shim. A devolution of the power of Kubernetes into the simplicity of compose: real `docker compose up`, real Caddy, plain stupid containers.
+A set of tools that convert Kubernetes manifests to `compose.yml` + `Caddyfile`. Not Kubernetes-in-Docker (kind, k3d, minikube...) — no cluster, no kubelet, no shim. A devolution of the power of Kubernetes into the simplicity of compose: real `docker compose up`, real Caddy, plain stupid containers. What started as a single Python script is now a bare engine, a distribution, a package manager, an extension system, a regression suite, and a fake kube-apiserver. The scope creep was not planned. The scope creep was never planned.
 
 Here because this upmost abomination is causing issues? Here's the path to (partial) redemption: **[Troubleshooting](troubleshooting.md)**.
 
@@ -12,9 +17,9 @@ There are dozens of tools that go from Compose to Kubernetes ([Kompose](https://
 
 Using Kubernetes manifests as an intermediate representation to generate a docker-compose is absolutely using an ICBM to kill flies — which is exactly why I find it satisfying.
 
-The name is `helmfile2compose` because both helmfile and docker-compose share the same purpose: deploying an entire self-contained platform at once. If you're using this to convert something that isn't self-contained, you are further into the abyss than I ever ventured, and I am certain it will end terribly. Yog Sa'rath, stay away from me.
+The name is `helmfile2compose` because both helmfilLe and docker-compose share the same purpose: deploying an entire self-contained platform at once. If you're using this to convert something that isn't self-contained, you are further into the abyss than I ever ventured, and I am certain it will end terribly. Yog Sa'rath, stay away from me.
 
-> *The disciples beseeched the architect: render thy celestial works in common clay, that we may raise them without knowledge of the heavens. It was heresy. The architect obliged. The temples stood.*
+> *The uninitiated beseeched the architect: render thy celestial works in common clay, that we may raise them without knowledge of the heavens. It was heresy. The architect obliged. The temples stood.*
 >
 > — *Necronomicon, Prayers That Should Never Have Been Answered (probably)*
 
@@ -72,17 +77,19 @@ Despite the name, **helmfile is not required** — the core accepts any director
 
 ### The ecosystem
 
-What started as a single script became an ecosystem of three components:
+What started as a single script became an ecosystem of four components:
 
-- **[h2c-core](https://github.com/helmfile2compose/helmfile2compose)** — *the mad scribe.* A single Python script (~1860 lines) that reads K8s manifests and writes compose. Handles Deployments, StatefulSets, DaemonSets, Jobs, Services, Ingress, ConfigMaps, Secrets, PVCs, init containers, sidecars, and more things than anyone asked for.
-- **[Extensions](catalogue.md)** — *the damned.* External modules that teach h2c new tricks. Four types: providers (CRD converters that produce compose services), converters (CRD converters that produce synthetic resources), transforms (post-processing hooks that reshape the final output), and ingress rewriters (translate controller-specific annotations to Caddy rules). Each extension is a single `.py` file. For the glory of Yog Sa'rath.
-- **[h2c-manager](https://github.com/helmfile2compose/h2c-manager)** — *the dark priest.* Downloads h2c-core and extensions from GitHub releases, resolves dependencies, and provides a `run` shortcut. Reads `helmfile2compose.yaml` for declarative dependency management. Stdlib only, no dependencies.
+- **[h2c-core](https://github.com/helmfile2compose/h2c-core)** — *the bare engine.* The conversion pipeline, extension loader, and CLI — with empty registries. No built-in converters, no opinions. A temple with no priests. Produces `h2c.py` (~1265 lines).
+- **[helmfile2compose](https://github.com/helmfile2compose/helmfile2compose)** — *the distribution.* h2c-core + 7 built-in extensions (workloads, indexers, HAProxy rewriter, Caddy provider), concatenated into a single `helmfile2compose.py` (~1672 lines). This is what users run. See [Distributions](developer/distributions.md).
+- **[Extensions](catalogue.md)** — *the damned.* External modules that teach h2c new tricks. Providers, converters, indexers, transforms, ingress rewriters, ingress providers — each a single `.py` file. For the glory of Yog Sa'rath.
+- **[h2c-manager](https://github.com/helmfile2compose/h2c-manager)** — *the dark priest.* Downloads the distribution and extensions from GitHub releases, resolves dependencies, and provides a `run` shortcut. Reads `helmfile2compose.yaml` for declarative dependency management. Stdlib only, no dependencies.
 
 ## Repositories
 
 | Repo | Description |
 |------|-------------|
-| [h2c-core](https://github.com/helmfile2compose/helmfile2compose) | Core converter script (`helmfile2compose.py`) |
+| [h2c-core](https://github.com/helmfile2compose/h2c-core) | Bare conversion engine (`h2c.py`) |
+| [helmfile2compose](https://github.com/helmfile2compose/helmfile2compose) | Full distribution (core + built-in extensions → `helmfile2compose.py`) |
 | [h2c-manager](https://github.com/helmfile2compose/h2c-manager) | Package manager + extension registry |
 | [helmfile2compose.github.io](https://github.com/helmfile2compose/helmfile2compose.github.io) | This documentation site |
 | [h2c-testsuite](https://github.com/helmfile2compose/h2c-testsuite) | Regression & performance test suite |

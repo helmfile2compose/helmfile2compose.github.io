@@ -20,7 +20,7 @@ python3 h2c-manager.py run -e compose
 docker compose up -d
 ```
 
-Or if your project ships a `generate-compose.sh`:
+Or if your project ships a `generate-compose.sh` (a wrapper script that runs h2c-manager for you — check your project's README):
 
 ```bash
 git pull

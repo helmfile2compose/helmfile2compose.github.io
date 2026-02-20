@@ -66,6 +66,24 @@ There is, however, a way back. The [`flatten-internal-urls`](../catalogue.md#fla
 >
 > — *The Nameless City, On Names That Refuse to Die (unverified)*
 
+## The ouroboros
+
+v3.0.0 split h2c into a bare engine and a distribution. The bare engine has empty registries — it parses manifests, finds no converters, and produces nothing. A temple with no priests. The distribution bundles 7 extensions, wires them in via `_auto_register()`, and produces the same output as before. Literally the same. Bit for bit. The executioner confirms it.
+
+This is the Kubernetes distribution model. A bare API server that does nothing without controllers. A distribution (k3s, k0s, EKS) that bundles the controllers, the CNI, the ingress, the storage — the opinions. The engine is unopinionated. The distribution is opinionated. Third-party extensions plug into the engine's contracts.
+
+I didn't build this to escape Kubernetes. I built it to bring its power to the uninitiated — people who need compose, not a cluster. One source of truth, two runtimes. That was the deal.
+
+I didn't plan to reinvent Kubernetes in the process.
+
+The architect who wanted to harness the temple's power without maintaining its infrastructure has, stone by stone, built a second temple. The same separation of concerns. The same extension points. The same empty core that gains purpose only through what you bolt onto it. The same pattern of "bare framework + opinionated distribution + third-party ecosystem." The YAML changes shape but never volume. The line count doubled and the output didn't change.
+
+This is not a metaphor. This is what happened. The tool that converts Kubernetes manifests has become, architecturally, a tiny Kubernetes. And the architect stared at the dependency graph, recognized every pattern, and felt the specific vertigo of someone who set out to tame a beast and accidentally raised a second one.
+
+> *The architect did not flee the temple — he revered it, and sought to carry its fire into lesser hearths. Yet fire, once carried, demands a hearth of its own. And the hearth demands walls. And the walls demand wards. And lo, the architect stood in a second temple and could not say when he had begun building it.*
+>
+> — *Voynich Manuscript, On the Propagation of Sacred Architecture (I wish I were joking)*
+
 ## On knowing what you destroy
 
 Again: this tool works. Not "works for a demo" — works with real helmfiles, real operators, real cert chains, real multi-service platforms. Applications don't notice they've been evicted from Kubernetes.

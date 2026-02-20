@@ -1,0 +1,138 @@
+# Writing ingress providers
+
+An ingress provider is the abstract base for reverse proxy backends. Subclasses implement `build_service()` and `write_config()` to produce a reverse proxy compose service and its configuration file.
+
+> *The gatekeeper was not merely a guard — he was the gate itself, the threshold, and the architect of the path beyond. When the temple replaced him, it did not hire a new guard. It built a new door.*
+>
+> — *Unaussprechlichen Kulten, On the Replacement of Thresholds (if memory serves)*
+
+## What it is
+
+`IngressProvider` is an abstract class (subclass of `Provider`) that handles the entire Ingress conversion lifecycle. It lives in `h2c.core.ingress` internally, but extensions should import it from the pacts API:
+
+1. Receives all `Ingress` manifests (via `convert()`)
+2. Dispatches each manifest to the first matching `IngressRewriter` (via `_find_rewriter()`)
+3. Collects all rewriter entries
+4. Calls `build_service(entries, ctx)` to produce the reverse proxy compose service
+5. Calls `write_config(entries, output_dir, config)` to write the proxy config file
+
+```python
+from h2c import IngressProvider
+```
+
+## Base class attributes
+
+| Attribute | Value | Description |
+|-----------|-------|-------------|
+| `kinds` | `["Ingress"]` | Hardcoded — IngressProvider always claims Ingress |
+| `priority` | `900` | Runs after all other converters/providers |
+| `name` | `"ingress"` | Override with your provider's name (e.g. `"caddy"`, `"traefik"`) |
+
+## The contract
+
+Two methods to implement:
+
+### `build_service(entries, ctx) -> dict`
+
+Receives all collected Caddy entries and the `ConvertContext`. Returns a dict of compose service definitions (keyed by service name), or empty dict if disabled.
+
+```python
+def build_service(self, entries, ctx):
+    return {"my-proxy": {
+        "image": "my-proxy:latest",
+        "restart": "always",
+        "ports": ["80:80", "443:443"],
+        "volumes": ["./my-proxy.conf:/etc/proxy.conf:ro"],
+    }}
+```
+
+### `write_config(entries, output_dir, config)`
+
+Writes the reverse proxy configuration file to `output_dir`. Receives the collected entries, the output directory, and the raw config dict (from `helmfile2compose.yaml`).
+
+```python
+def write_config(self, entries, output_dir, config):
+    import os
+    path = os.path.join(output_dir, "my-proxy.conf")
+    with open(path, "w", encoding="utf-8") as f:
+        for entry in entries:
+            f.write(f"route {entry['host']}{entry['path']} -> {entry['upstream']}\n")
+```
+
+## How dispatch works
+
+The `convert()` method on `IngressProvider` is already implemented — you don't override it. It does:
+
+```python
+def convert(self, _kind, manifests, ctx):
+    entries = []
+    for m in manifests:
+        rewriter = self._find_rewriter(m, ctx)
+        entries.extend(rewriter.rewrite(m, ctx))
+    services = {}
+    if entries and not ctx.config.get("disableCaddy"):
+        services = self.build_service(entries, ctx)
+    return ConvertResult(services=services, caddy_entries=entries)
+```
+
+Each Ingress manifest is matched against loaded `IngressRewriter` classes. The rewriter translates controller-specific annotations into a list of entry dicts (see [Writing rewriters](writing-rewriters.md) for the entry format). Your provider then consumes those entries to build the service and config.
+
+## Reference: CaddyProvider
+
+The built-in `CaddyProvider` (in the helmfile2compose distribution's `extensions/caddy.py`) is the reference implementation:
+
+```python
+from h2c import IngressProvider
+
+class CaddyProvider(IngressProvider):
+    name = "caddy"
+
+    def build_service(self, entries, ctx):
+        ext_cfg = ctx.extension_config
+        if ext_cfg.get("disabled"):
+            return {}
+        volume_root = ctx.config.get("volume_root", "./data")
+        caddy_volumes = [
+            "./Caddyfile:/etc/caddy/Caddyfile:ro",
+            f"{volume_root}/caddy:/data",
+            f"{volume_root}/caddy-config:/config",
+        ]
+        # Mount CA secrets for backend TLS
+        ca_secrets = {e["server_ca_secret"] for e in entries
+                      if e.get("server_ca_secret")}
+        for secret_name in sorted(ca_secrets):
+            caddy_volumes.append(
+                f"./secrets/{secret_name}"
+                f":/etc/caddy/certs/{secret_name}:ro")
+        return {"caddy": {
+            "image": "caddy:2-alpine", "restart": "always",
+            "ports": ["80:80", "443:443"],
+            "volumes": caddy_volumes,
+        }}
+
+    def write_config(self, entries, output_dir, config):
+        # Writes a Caddyfile with host blocks, TLS config,
+        # reverse_proxy directives, strip_prefix, extra_directives
+        ...
+```
+
+## When to write one
+
+Write an `IngressProvider` when you want to replace the entire reverse proxy backend — Caddy with Traefik, Nginx Proxy Manager, HAProxy (as a proxy, not just a rewriter), etc. This is a **distribution-level extension**: it lives in a distribution's `extensions/` directory, not as an external extension loaded via `--extensions-dir`.
+
+If you only need to translate a different ingress controller's annotations into Caddy entries, write an [IngressRewriter](writing-rewriters.md) instead — that's much simpler and works as an external extension.
+
+## Distribution-level extension
+
+`IngressProvider` subclasses are bundled into distributions at build time via `build-distribution.py`. They are not designed for runtime loading (they're part of the concatenated script). See [Distributions](../distributions.md) for how to create a custom distribution with your own ingress provider.
+
+```
+my-distribution/
+├── extensions/
+│   ├── caddy.py             # or traefik_proxy.py, nginx_pm.py, etc.
+│   ├── workloads.py
+│   └── ...
+├── .github/workflows/
+│   └── release.yml
+└── README.md
+```

@@ -1,6 +1,6 @@
 # Using helmfile2compose with your own project
 
-I'm sorry you're here. Truly. If you're reading this, it means you maintain a helmfile (or at least Helm charts), and someone — a colleague, a client, a mass of disciples — has asked you for a docker-compose. You have exhausted all diplomatic avenues. You have explained that Kubernetes exists for a reason. They do not care. They want `docker compose up` and they want it yesterday.
+I'm sorry you're here. Truly. If you're reading this, it means you maintain a helmfile (or at least Helm charts), and someone — a colleague, a client, a mass of uninitiated — has asked you for a docker-compose. You have exhausted all diplomatic avenues. You have explained that Kubernetes exists for a reason. They do not care. They want `docker compose up` and they want it yesterday.
 
 I've been there. Twice. This tool is the scar tissue.
 
@@ -35,7 +35,7 @@ CRDs (Keycloak, cert-manager, trust-manager, Prometheus) are a different story �
 
 ## Installation
 
-Download `helmfile2compose.py` from the [latest h2c-core release](https://github.com/helmfile2compose/helmfile2compose/releases/latest).
+Download `helmfile2compose.py` from the [latest helmfile2compose release](https://github.com/helmfile2compose/helmfile2compose/releases/latest).
 
 If your stack uses CRDs that have an [h2c extension](../catalogue.md) (Keycloak, cert-manager, trust-manager), grab the extension `.py` files from their repos too and drop them in an `extensions/` directory next to the script:
 
@@ -144,7 +144,7 @@ Compatibility was covered [above](#before-you-start-ingress-controller). This se
 | **Nginx** | `rewrite-target`, `backend-protocol`, `enable-cors`, `proxy-body-size`, `configuration-snippet` (partial) |
 | **Traefik** | `router.tls`, standard Ingress path rules. No middleware CRD support. |
 
-HAProxy is built into h2c-core. Nginx and Traefik are extensions — install them with [h2c-manager](h2c-manager.md) or drop the `.py` file in your `extensions/` directory.
+HAProxy is built into the helmfile2compose distribution. Nginx and Traefik are extensions — install them with [h2c-manager](h2c-manager.md) or drop the `.py` file in your `extensions/` directory.
 
 ### Custom ingress class names
 
@@ -167,7 +167,7 @@ Without this, h2c won't recognize the class and the Ingress is skipped with a wa
 
 3. **Ship a `helmfile2compose.yaml.template`.** Pre-configure excludes, overrides, and volume mappings that are specific to your project. The generate script copies it to `helmfile2compose.yaml` on first run. Users then customize their copy.
 
-4. **Pin a release.** Use `--core-version` in h2c-manager and `==version` for extensions. Don't point at `main`. The tool's behavior may change between releases (or mutate on its own, I don't know anything at this point). I don't do it myself — but I think we already established my sanity left around v1.2, way before extensions were even on the roadmap.
+4. **Pin a release.** Use `--distribution-version` in h2c-manager and `==version` for extensions. Don't point at `main`. The tool's behavior may change between releases (or mutate on its own, I don't know anything at this point). I don't do it myself — but I think we already established my sanity left around v1.2, way before extensions were even on the roadmap.
 
 ## The two projects that caused this to exist
 

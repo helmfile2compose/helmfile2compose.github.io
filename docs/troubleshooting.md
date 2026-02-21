@@ -10,7 +10,7 @@ Before we begin: nothing on this page should surprise you. You converted a Kuber
 
 ## Installing Helm and Helmfile
 
-h2c needs `helm` and `helmfile` to render manifests.
+helmfile2compose needs `helm` and `helmfile` to render manifests.
 
 !!! tip "Package manager"
     Some package managers already have both: `brew install helm helmfile` on macOS, `pacman -S helm helmfile` on Arch. If that works, skip the manual install below.
@@ -48,7 +48,7 @@ If you are running Rancher Desktop with containerd: switching to dockerd (moby) 
 
 ## For maintainers: chart-specific issues
 
-If the issue is specific to a Helm chart rather than h2c itself — a sidecar that needs the K8s API, a container that expects a CRD controller at runtime, an image that phones home to the apiserver on startup — check the [known workarounds](maintainer/known-workarounds/index.md). Those are sushi recipes for tentacles that don't fit, organized by chart.
+If the issue is specific to a Helm chart rather than helmfile2compose itself — a sidecar that needs the K8s API, a container that expects a CRD controller at runtime, an image that phones home to the apiserver on startup — check the [known workarounds](maintainer/known-workarounds/index.md). Those are sushi recipes for tentacles that don't fit, organized by chart.
 
 ## Network alias collisions (multi-project)
 
@@ -58,7 +58,7 @@ Congratulations — you are experiencing the consequences of your own actions. Y
 
 But alas, I am here. Not to save you — salvation left this project around v1.2 — but to teach you how to identify which curse is yours and how to keep the tentacles from strangling each other.
 
-When multiple h2c projects share the same Docker network (`network: shared-infra` in `helmfile2compose.yaml`), every network alias from every service in every project lands on the same DNS namespace. Every FQDN, every short name, every cursed `.svc.cluster.local` suffix — all of them, cohabiting in a flat network that was never designed to hold the naming conventions of multiple fictional clusters.
+When multiple helmfile2compose projects share the same Docker network (`network: shared-infra` in `helmfile2compose.yaml`), every network alias from every service in every project lands on the same DNS namespace. Every FQDN, every short name, every cursed `.svc.cluster.local` suffix — all of them, cohabiting in a flat network that was never designed to hold the naming conventions of multiple fictional clusters.
 
 The **FQDNs** are mostly safe — K8s namespaces are baked into the names, so `redis.stoatchat-redis.svc.cluster.local` and `redis.lasuite-redis.svc.cluster.local` resolve to different containers. The temple's naming conventions, for once, protect you.
 

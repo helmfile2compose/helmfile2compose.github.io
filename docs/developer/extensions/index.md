@@ -28,7 +28,7 @@ from h2c import resolve_env             # resolve env/envFrom into flat list
 from h2c import _secret_value           # decode a Secret key (base64 or plain)
 ```
 
-These are the **pacts** — the [sacred contracts](../core-architecture.md#pacts--the-sacred-contracts) — and are stable across minor versions. Both import paths work:
+These are the **pacts** — the [sacred contracts](../h2c-core.md#pacts--the-sacred-contracts) — and are stable across minor versions. Both import paths work:
 
 ```python
 from h2c import ConvertContext           # via re-export

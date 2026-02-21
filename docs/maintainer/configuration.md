@@ -10,7 +10,7 @@ name: my-platform
 volume_root: ./data
 caddy_email: admin@example.com
 
-core_version: v2.3.0
+distribution_version: v3.0.0
 depends:
   - keycloak
   - cert-manager==0.1.0

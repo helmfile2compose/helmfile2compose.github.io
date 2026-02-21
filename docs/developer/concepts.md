@@ -76,9 +76,9 @@ I didn't build this to escape Kubernetes. I built it to bring its power to the u
 
 I didn't plan to reinvent Kubernetes in the process.
 
-The architect who wanted to harness the temple's power without maintaining its infrastructure has, stone by stone, built a second temple. The same separation of concerns. The same extension points. The same empty core that gains purpose only through what you bolt onto it. The same pattern of "bare framework + opinionated distribution + third-party ecosystem." The YAML changes shape but never volume. The line count doubled and the output didn't change.
+What started as a way to harness the temple's power without maintaining its infrastructure has, stone by stone, become a second temple. The same separation of concerns. The same extension points. The same empty core that gains purpose only through what you bolt onto it. The same pattern of "bare framework + opinionated distribution + third-party ecosystem." The YAML changes shape but never volume. The line count doubled and the output didn't change.
 
-This is not a metaphor. This is what happened. The tool that converts Kubernetes manifests has become, architecturally, a tiny Kubernetes. And the architect stared at the dependency graph, recognized every pattern, and felt the specific vertigo of someone who set out to tame a beast and accidentally raised a second one.
+This is not a metaphor. This is what happened. The tool that converts Kubernetes manifests has become, architecturally, a tiny Kubernetes. Stare at the dependency graph long enough and every pattern is familiar — the specific vertigo of setting out to tame a beast and accidentally raising a second one.
 
 > *The architect did not flee the temple — he revered it, and sought to carry its fire into lesser hearths. Yet fire, once carried, demands a hearth of its own. And the hearth demands walls. And the walls demand wards. And lo, the architect stood in a second temple and could not say when he had begun building it.*
 >

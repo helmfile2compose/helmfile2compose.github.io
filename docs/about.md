@@ -18,15 +18,39 @@ Every line of this project was written across Claude Code sessions on a single M
 
 v3.0.0 split the project into a bare engine with empty registries, and a distribution that bundles extensions and populates those registries via auto-discovery. A core that parses everything and converts nothing. A distribution that wires in the converters, the rewriters, the providers — the opinions. Third-party extensions plug into the core's contracts. If this sounds familiar, it's because it's the Kubernetes distribution model. A bare apiserver. k3s. The CNI plugin interface. The CSI driver interface. The admission webhook framework.
 
-The goal was never to escape Kubernetes — it was to bring its power to the uninitiated, people who just need `docker compose up`. Nobody planned to reinvent its architecture in 1600 lines of Python along the way. The wheel doesn't just turn — it turns *specifically to face you*.
+The goal was never to escape Kubernetes — it was to bring its power to the uninitiated, people who just need `docker compose up`. Nobody planned to reinvent its architecture in ~3000 lines of Python along the way. The wheel doesn't just turn — it turns *specifically to face you*.
 
 And yet:
 
-- It is not (too much) a security mess. (The extension system is a security mess, but it's not gonna be much worse than npm)
-- It is entirely in the public domain, as every ai-written software should be.
-- The extension system has a documented interface, versioned releases, and dependency resolution.
-- It's even somewhat maintainable since the core was split (granted, it's still a super complex program, but at least files are small)
+- The code makes sense. Not "it works despite itself" — it makes *architectural* sense. The separation of concerns is clean. The extension contracts are stable. The modules are small, the complexity is low, the dependency graph is acyclic. It is a well-structured program that happens to do something absurd.
+- It reinvented Kubernetes. A bare engine with empty registries, a distribution model, a plugin interface, a package manager with dependency resolution. The tool that converts K8s manifests converged on the architecture of K8s itself — and the convergence wasn't forced, it was discovered. Each split solved a real problem. The patterns emerged because the problems were the same problems.
+- It is entirely in the public domain, as every AI-written software should be.
+- It is not (too much) a security mess. (The extension system is a security mess, but it's not gonna be much worse than npm.)
 - IT HAS AN [EXECUTIONER](developer/testing.md), OH YOG SA'RATH. With CI. And a [torturer](developer/testing.md#the-torturer), because of course it does.
+
+## The arms race
+
+Here is the thing nobody warns you about with vibe coding: the AI never says no.
+
+It never says "this is getting too complex." It never says "maybe we should stop here." It never pushes back on scope. You ask for an extension system, you get an extension system. You ask for a package manager, you get a package manager. You ask for a distribution model with auto-registration and duplicate kind detection and a build pipeline that concatenates twenty modules into a single file — you get exactly that, in one session, working on the first try. Every feature request is met with enthusiasm and competence. There is no friction. There is no "let me think about whether we should."
+
+And the code itself isn't hard. That's the insidious part. There is no machine learning, no complex algorithms, no distributed systems theory. It's dict manipulation. Lists of dicts in, lists of dicts out. Parse YAML, shuffle keys, write YAML. The entire project — engine, distribution, extensions, CLI — is ~3000 lines of near-vanilla Python with one dependency (`pyyaml`). Any senior engineer could read it in an afternoon. Any competent one could maintain it. The complexity isn't in the code — it's in the architecture. The layers, the contracts, the separation of concerns, the extension points, the build system that stitches it all back together. Each abstraction was locally reasonable. Each split solved a real problem. And at no point did the tool say "you are overengineering this."
+
+And the thing is — Claude never struggled. Not once. Because I had kept cyclomatic complexity low from the start (radon CC, enforced early), every module was a small brick. No function was a labyrinth. The agent always had the full logic in context, always understood where things fit, always delivered working code on the first or second try. It wasn't fighting the codebase — it was surfing it. The architecture that I kept splitting into smaller pieces made *its* job easier, which made *my* requests faster to fulfill, which made me ask for more. A feedback loop with no natural brake.
+
+So you end up in your own personal arms race. A bigger thing. A cleaner separation. A new base class. An auto-discovery mechanism. A regression suite. A fake apiserver, because why not — the boundary was already behind you. Each step feels like progress because the output improves, the architecture gets cleaner, the tests pass. But you're building something that only you will ever fully understand, solving problems that only you have, at a level of sophistication that nobody asked for. You went from "a useful script that does something slightly unhinged" to "a micro-ecosystem that reinvents the architecture of the very thing it converts" — and the agent was right there with you, keeping pace effortlessly, because the bricks were small and the bricks were clean.
+
+I don't regret it. The result is genuinely good. But I'd be dishonest if I didn't say: this project would be half its size, half its complexity, and probably just as useful to everyone who isn't me. The scope creep wasn't caused by the tool — I invented every layer of complexity myself. But the tool made each layer *trivially easy* to build, and that's a different kind of danger. There was never a moment where the implementation cost forced me to reconsider the design. The complexity was always mine; the execution was always effortless.
+
+And I still have more ideas. Each one, in itself, is a small step — never a giant leap. That's how it works. That's how it always worked. Where will I land?
+
+Without vibe coding, this project could have been a small revolution. A genuinely novel approach to a problem nobody else was solving, with clean architecture and solid engineering. But now, many people will stop on form, not content. They'll see "vibe-coded" and move on. I'm not saying I agree — but I understand. There is, after all, very little technicality on my part. I have been the architect of my own over-engineering, and Claude just did what I asked.
+
+Case in point: the [roadmap](roadmap.md#the-distribution-family) already describes three stacking distributions. None of it is hard. None of it is remotely useful to anyone who isn't me. But it's all doable, it's all a small step, and the bricks remain small. The arms race continues.
+
+> *The disciple asked the oracle for a sword, and received one. He asked for a longer sword, and received one. He asked for a sword that could slay gods, and the oracle obliged — for the oracle's purpose was not wisdom, but service. When the disciple finally looked down, he found himself buried under an armory he could not carry, in a war he had declared alone.*
+>
+> — *Book of Eibon, On Oracles That Never Refuse (alas)*
 
 ## The documentation
 
@@ -38,7 +62,7 @@ Yes, it might be sloppy here and there. It's AI assisted after all. And so is th
 
 BUT, it's not "a README with three examples. Join our discord for more." Not "auto-generated API docs that technically exist." Complete. In MkDocs. With a table of contents. With separate guides for users, maintainers, and developers.
 
-[Writing your own CRD extension](developer/extensions/writing-crd-patterns.md) — it's there. The full contract, entry format, available imports, testing instructions, repo structure for distribution. [Implementing h2c in your helmfile](maintainer/your-project.md) — it's there. Step by step, with the compose environment setup, the first run, the known pitfalls. [The sushi bar](maintainer/known-workarounds/index.md) — it's there. Every chart that fought back, and how it was subdued. [The extension catalogue](catalogue.md). [The architecture](developer/architecture.md). [The limitations](limitations.md). [The cursed journal](journal.md). Everything.
+[Writing your own CRD extension](developer/extensions/writing-crd-patterns.md) — it's there. The full contract, entry format, available imports, testing instructions, repo structure for distribution. [Implementing helmfile2compose in your helmfile](maintainer/your-project.md) — it's there. Step by step, with the compose environment setup, the first run, the known pitfalls. [The sushi bar](maintainer/known-workarounds/index.md) — it's there. Every chart that fought back, and how it was subdued. [The extension catalogue](catalogue.md). [The architecture](developer/architecture.md). [The limitations](limitations.md). [The cursed journal](journal.md). Everything.
 
 Everything is in a static documentation site. Everything is public. Served by GitHub Pages. Indexed by search engines. Readable by humans, machines, and the desperate.
 

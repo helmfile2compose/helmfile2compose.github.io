@@ -106,7 +106,7 @@ v2.3.2 split the 1858-line monolith into 21 modules across three layers: `pacts/
 
 The split alone fixed MI — from 0.00 (C) to 68.38 (A). Then a cyclomatic complexity pass extracted helpers from every function rated CC 14+. The worst offender dropped from 18 to 16. Average CC went from 6.6 to 5.9. All 21 modules score MI A individually.
 
-A project whose existence is an architectural crime now has an architecture page. With a dependency graph. And layer boundaries. And a section called "[the sacred contracts](core-architecture.md#pacts--the-sacred-contracts)."
+A project whose existence is an architectural crime now has an architecture page. With a dependency graph. And layer boundaries. And a section called "[the sacred contracts](h2c-core.md#pacts--the-sacred-contracts)."
 
 > *They said: let us impose order upon the chaos, that future disciples may navigate the labyrinth without losing their minds. And so the tablet was broken into twenty-one fragments, each labeled and indexed. The labyrinth remained — but now it had signage.*
 >

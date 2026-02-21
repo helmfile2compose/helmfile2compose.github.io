@@ -16,7 +16,7 @@ compose.yml + Caddyfile + configmaps/ + secrets/
 
 A dedicated helmfile environment (e.g. `compose`) typically disables K8s-only infrastructure (cert-manager, ingress controller, reflector) and adjusts defaults for compose.
 
-For the internal package structure, module layout, and build system, see [Core architecture](core-architecture.md).
+For the internal package structure, module layout, and build system, see [h2c-core](h2c-core.md).
 
 ## Converter dispatch
 

@@ -1,28 +1,30 @@
-# Core architecture
+# h2c-core — the bare engine
 
 > *The disciple gazed upon the monolith and saw that it was vast — a single tablet bearing every law, every rite, every contradiction. And he said: let us shatter the tablet, that each fragment may be understood alone. But when the pieces lay scattered, each fragment still whispered the name of the whole.*
 >
 > — *Necronomicon, On the Shattering of Tablets (fragmentary)*
 
-## Why split
+## What it is
 
-`helmfile2compose.py` grew to ~1860 lines — a single file containing types, constants, parsers, converters, CLI, and output writers. It worked, but navigating it required a mental index. The split preserves the single-file distribution (users and h2c-manager see no change) while making the codebase navigable.
+h2c-core is the conversion engine — the pipeline, the extension loader, the CLI, and nothing else. No built-in converters. No built-in rewriters. All registries empty. Feed it manifests and it will parse them, warn that every kind is unknown, and produce nothing. A temple with no priests.
+
+It exists so that [distributions](distributions.md) can bundle different sets of extensions on top of the same engine. The [helmfile2compose](https://github.com/helmfile2compose/helmfile2compose) distribution is the default — h2c-core + 7 built-in extensions, concatenated into a single `helmfile2compose.py`. But h2c-core can also be used standalone with `--extensions-dir`, or as the foundation for custom distributions.
+
+**Users never interact with h2c-core directly.** They use a distribution. h2c-core is for extension developers, distribution builders, and people who want to understand how the engine works.
 
 ## Package structure
 
 ```
 h2c-core/
 ├── src/h2c/
-│   ├── __init__.py          # re-exports pacts API (backwards compat)
+│   ├── __init__.py          # re-exports pacts API
 │   ├── __main__.py          # python -m h2c entry point
 │   ├── cli.py               # argument parsing, orchestration
 │   ├── pacts/               # public contracts for extensions
-│   │   ├── __init__.py
 │   │   ├── types.py         # ConvertContext, ConvertResult, Converter, Provider
 │   │   ├── ingress.py       # IngressRewriter, get_ingress_class(), resolve_backend()
 │   │   └── helpers.py       # apply_replacements(), _secret_value()
 │   ├── core/                # internal conversion engine
-│   │   ├── __init__.py
 │   │   ├── constants.py     # regexes, kind lists, well-known ports
 │   │   ├── env.py           # resolve_env(), port remapping, command conversion
 │   │   ├── volumes.py       # volume mount conversion (PVC, ConfigMap, Secret)
@@ -31,17 +33,14 @@ h2c-core/
 │   │   ├── extensions.py    # extension discovery and loading
 │   │   └── convert.py       # convert() orchestration, overrides, fix-permissions, _auto_register()
 │   └── io/                  # input/output
-│       ├── __init__.py
 │       ├── parsing.py       # helmfile template, YAML loading, namespace inference
 │       ├── config.py        # helmfile2compose.yaml load/save
 │       └── output.py        # compose.yml, Caddyfile, warnings
 ├── build.py                 # concat → single-file h2c.py (bare engine)
-├── build-distribution.py    # concat core + extensions → distribution (e.g. helmfile2compose.py)
+├── build-distribution.py    # concat core + extensions → distribution
 └── .github/workflows/
     └── release.yml          # CI: build + release assets on tag push
 ```
-
-Note: `workloads.py` (WorkloadConverter) and `haproxy.py` (HAProxyRewriter) are **not** in h2c-core — they are distribution extensions, bundled in the [helmfile2compose](https://github.com/helmfile2compose/helmfile2compose) distribution's `extensions/` directory. The bare core has empty registries; the distribution populates them via `_auto_register()`.
 
 ## The three layers
 
@@ -83,51 +82,32 @@ Module-level mutable state lives in `core/convert.py` (`_CONVERTERS`, `_TRANSFOR
 
 Parsing, config, and output writing. No conversion logic — just plumbing between the filesystem and the core.
 
-## Build / concat
+## Build artifacts
 
-Two build scripts, two purposes:
+Two build scripts produce two different outputs:
 
 - **`build.py`** — concatenates `src/h2c/` into a single `h2c.py`. Bare engine, no extensions. This is the h2c-core release artifact.
-- **`build-distribution.py`** — builds a distribution from core + extensions dir. Used by distribution repos (e.g. [helmfile2compose](https://github.com/helmfile2compose/helmfile2compose)).
-
-Both follow the same pattern:
-
-1. Reads modules in manually-maintained dependency order (constants first, CLI last) — the `MODULES` / `CORE_MODULES` list must respect the import graph. A topological sort would automate this, but 15 lines that change once a year don't warrant a DAG resolver. If the order is wrong, the `--help` smoke test fails immediately.
-2. Strips internal `from h2c...` imports (everything's in one namespace)
-3. Deduplicates stdlib/external imports
-4. Writes the output file with shebang + docstring + all code
-5. Runs `--help` as a smoke test
+- **`build-distribution.py`** — builds a distribution from core + extensions dir. Used by distribution repos. Published as a release asset so distributions can fetch it in CI.
 
 ```bash
 # Bare core
 python build.py
-# → h2c.py (build artifact, not committed)
+# → h2c.py (~1265 lines, not committed)
 
-# Distribution
+# Distribution (from a distribution repo)
 python build-distribution.py helmfile2compose --extensions-dir extensions --core-dir ../h2c-core
 # → helmfile2compose.py
 ```
 
-The CI workflow (`.github/workflows/release.yml`) runs `build.py` on tag push and uploads `h2c.py` + `build-distribution.py` as release assets.
-
-See [Build system](build-system.md) for the full deep dive.
+See [Build system](build-system.md) for the full deep dive on concatenation, import stripping, and the `sys.modules` hack.
 
 ## Dev workflow
 
-Assumes `h2c-core` and `h2c-testsuite` are checked out as sibling directories.
-
 ```bash
 # Run from the package (development)
-cd h2c-core
 PYTHONPATH=src python -m h2c --from-dir /tmp/rendered --output-dir /tmp/out
 
-# Build the bare core (testing core artifact)
+# Build and smoke test
 python build.py
 python h2c.py --from-dir /tmp/rendered --output-dir /tmp/out
-
-# Validate with the executioner
-cd ../h2c-testsuite
-./run-tests.sh --local-core ../h2c-core/h2c.py
 ```
-
-Both paths produce identical output — the executioner validates this.

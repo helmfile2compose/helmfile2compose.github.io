@@ -13,6 +13,25 @@ Every extension currently bundled in the helmfile2compose distribution (`workloa
 
 `helmfile2compose` stops being code and becomes a shopping list. It will forever carry the short but horrifying history of a project that started from a simple need and became far, *far* too complicated for what it was supposed to be. The release? Not a 4.0. Not even a 3.x.0. A 3.x.y+1 patch release — because the output won't change by a single comma. Just the location of said code.
 
+### The distribution family
+
+Three distributions that stack on top of each other.
+
+```
+h2c-core (bare engine, ~1265 lines)
+  └─ helmfile2basic (+ indexers, workloads)
+       └─ helmfile2compose (+ caddy, haproxy)
+            └─ helmfile2easy (+ every official extension)
+```
+
+| Distribution | What's in it | What it is |
+|---|---|---|
+| **helmfile2basic** | h2c-core + indexers + WorkloadConverter | A shiv. Services, ConfigMaps, Secrets, PVCs. No reverse proxy, no opinions. BYOE. |
+| **helmfile2compose** | helmfile2basic + Caddy + HAProxy rewriter | A revolver. The OG. Ingress → Caddy, h2c-manager for the rest. |
+| **helmfile2easy** | helmfile2compose + all official extensions | A rocket launcher. One script, one page of docs, zero configuration. |
+
+Requires: stacking support in `build-distribution.py` (build on top of a parent distribution, not just bare h2c-core), extracting the 7 built-in extensions into their own repos.
+
 ### Gateway API
 
 The Kubernetes [Gateway API](https://gateway-api.sigs.k8s.io/) is the eventual successor to Ingress — `HTTPRoute`, `Gateway`, `GRPCRoute` instead of `Ingress`. A `GatewayRewriter` extension would handle these kinds the same way `IngressRewriter` handles Ingress annotations: read the Gateway API resources, produce Caddy config. No rush — Gateway API adoption is still ramping up — but the extension system should be ready for it when it comes.

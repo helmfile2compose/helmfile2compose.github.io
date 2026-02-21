@@ -13,7 +13,7 @@ Things you need to know for the output to work correctly.
 !!! warning "nerdctl requires the flatten-internal-urls transform"
     Without it, nerdctl compose will silently ignore network aliases and services will fail to reach each other. Add `flatten-internal-urls` to your `depends` list — see workarounds below.
 
-h2c generates Docker Compose `networks.default.aliases` on each service so that Kubernetes FQDNs (`svc.ns.svc.cluster.local`, `svc.ns.svc`, `svc.ns`) resolve natively via compose DNS. This is how inter-service communication works without rewriting hostnames — the FQDNs match certificate SANs, Prometheus targets resolve, Grafana datasources work, everything behaves like it did in K8s.
+helmfile2compose generates Docker Compose `networks.default.aliases` on each service so that Kubernetes FQDNs (`svc.ns.svc.cluster.local`, `svc.ns.svc`, `svc.ns`) resolve natively via compose DNS. This is how inter-service communication works without rewriting hostnames — the FQDNs match certificate SANs, Prometheus targets resolve, Grafana datasources work, everything behaves like it did in K8s.
 
 nerdctl compose does not implement network aliases — it silently ignores the `aliases` key and does not support the `--network-alias` flag either. If you run containerd without Kubernetes (Rancher Desktop in containerd mode, Lima, etc.), FQDNs will not resolve unless you use the [`flatten-internal-urls`](catalogue.md#flatten-internal-urls) transform.
 

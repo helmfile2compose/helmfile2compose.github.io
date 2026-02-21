@@ -52,13 +52,13 @@ Adapt the secret name, dashboard paths, and **Grafana image version** to your se
 
 In K8s, the k8s-sidecar populates `/etc/grafana/provisioning/datasources/` from a labeled ConfigMap. In compose, create the file statically.
 
-The datasource ConfigMap is typically rendered by the Helm chart and already present in your manifests — h2c writes it to `configmaps/kube-prometheus-stack-grafana-datasource/`. Mount it as shown in the override above.
+The datasource ConfigMap is typically rendered by the Helm chart and already present in your manifests — helmfile2compose writes it to `configmaps/kube-prometheus-stack-grafana-datasource/`. Mount it as shown in the override above.
 
 If the datasource references the Prometheus K8s Service by its FQDN (e.g. `kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090`), it resolves natively via network aliases — no replacement needed.
 
 ## Dashboard provisioning
 
-Same pattern: the Helm chart renders dashboard JSON as ConfigMaps. h2c writes them to `configmaps/`. Mount each dashboard JSON into Grafana's dashboard directory and provide a `dashboardproviders.yaml` that points at it.
+Same pattern: the Helm chart renders dashboard JSON as ConfigMaps. helmfile2compose writes them to `configmaps/`. Mount each dashboard JSON into Grafana's dashboard directory and provide a `dashboardproviders.yaml` that points at it.
 
 The chart's default `dashboardproviders.yaml` ConfigMap usually works as-is — mount it from `configmaps/kube-prometheus-stack-grafana/dashboardproviders.yaml`.
 
@@ -70,7 +70,7 @@ kube-prometheus-stack also includes several components that serve no purpose in 
 - `kube-prometheus-stack-kube-state-metrics` — needs the Kubernetes API
 - `kube-prometheus-stack-prometheus-node-exporter` — needs host-level access
 
-These are **not** auto-excluded by h2c — add them manually to your `exclude:` list:
+These are **not** auto-excluded by helmfile2compose — add them manually to your `exclude:` list:
 
 ```yaml
 # helmfile2compose.yaml

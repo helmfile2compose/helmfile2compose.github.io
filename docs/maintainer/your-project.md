@@ -4,7 +4,8 @@ I'm sorry you're here. Truly. If you're reading this, it means you maintain a he
 
 I've been there. Twice. This tool is the scar tissue.
 
-From now on we will call this project **h2c**, because the concept is already mind-numbing enough — reading the full "helmfile2compose" every three words will certainly not help.
+!!! note "helmfile2compose vs h2c"
+    **h2c** (or h2c-core) is the bare conversion engine — an empty pipeline with no built-in converters. **helmfile2compose** is the distribution: h2c-core bundled with 7 extensions (workloads, indexers, HAProxy, Caddy) into a single `helmfile2compose.py`. This is what you download, run, and ship. When this page says "helmfile2compose", it means the distribution — the thing you actually use.
 
 > *He who renders the celestial into the mundane does not ascend — he merely ensures that both realms now share his suffering equally.*
 >
@@ -21,7 +22,7 @@ For the dark and twisted ritual underlying the conversion — what gets converte
 
 ## Before you start: ingress controller
 
-Your helmfile already uses an ingress controller. That choice is baked into your Ingress manifests — annotations, `ingressClassName` — and you're not going to change it for a compose migration. h2c needs a **rewriter** that speaks your controller's annotation dialect and translates it to Caddy. If your controller isn't supported, your Ingress manifests will be silently skipped and you'll have no reverse proxy — which is the single most visible thing that breaks.
+Your helmfile already uses an ingress controller. That choice is baked into your Ingress manifests — annotations, `ingressClassName` — and you're not going to change it for a compose migration. helmfile2compose needs a **rewriter** that speaks your controller's annotation dialect and translates it to Caddy. If your controller isn't supported, your Ingress manifests will be silently skipped and you'll have no reverse proxy — which is the single most visible thing that breaks.
 
 | Controller | Rewriter | Status |
 |------------|----------|--------|
@@ -157,13 +158,13 @@ ingressTypes:
   nginx-dmz: nginx
 ```
 
-Without this, h2c won't recognize the class and the Ingress is skipped with a warning.
+Without this, helmfile2compose won't recognize the class and the Ingress is skipped with a warning.
 
 ## Recommended workflow
 
 1. **One helmfile, two environments.** Keep your K8s environment as-is. Add a `compose` environment that disables cluster-only components. Same charts, same values (mostly), different targets.
 
-2. **Ship a `generate-compose.sh`.** A wrapper script that downloads h2c-manager, installs h2c + extensions, runs the conversion, and maybe generates secrets. See stoatchat-platform or lasuite-platform for examples.
+2. **Ship a `generate-compose.sh`.** A wrapper script that downloads h2c-manager, installs helmfile2compose + extensions, runs the conversion, and maybe generates secrets. See stoatchat-platform or lasuite-platform for examples.
 
 3. **Ship a `helmfile2compose.yaml.template`.** Pre-configure excludes, overrides, and volume mappings that are specific to your project. The generate script copies it to `helmfile2compose.yaml` on first run. Users then customize their copy.
 
@@ -178,11 +179,11 @@ Both ship with `generate-compose.sh` and `helmfile2compose.yaml.template`. Readi
 
 ## Garbage in, garbage out
 
-h2c does **zero validation** of your helmfile output. If your manifests reference a ConfigMap that doesn't exist, a Secret with a missing key, or a Service pointing at a non-existent Deployment — h2c will crash with an ugly Python traceback, not a helpful error message.
+helmfile2compose does **zero validation** of your helmfile output. If your manifests reference a ConfigMap that doesn't exist, a Secret with a missing key, or a Service pointing at a non-existent Deployment — helmfile2compose will crash with an ugly Python traceback, not a helpful error message.
 
-This is by design. Error handling for malformed K8s manifests is not h2c's job — it would massively increase complexity for something that `helmfile lint`, `helm template --validate`, and `kubectl apply --dry-run` already do. h2c assumes its input is valid. If it isn't, the consequences are yours.
+This is by design. Error handling for malformed K8s manifests is not helmfile2compose's job — it would massively increase complexity for something that `helmfile lint`, `helm template --validate`, and `kubectl apply --dry-run` already do. helmfile2compose assumes its input is valid. If it isn't, the consequences are yours.
 
-**Make sure your helmfile works on a real Kubernetes cluster first.** A real runtime — one with an actual apiserver, actual controllers, actual sanity — should have validated the output before h2c ever sees it. h2c is a downstream consumer, not a linter. Fix your helmfile, re-render, re-convert. Actions, consequences.
+**Make sure your helmfile works on a real Kubernetes cluster first.** A real runtime — one with an actual apiserver, actual controllers, actual sanity — should have validated the output before helmfile2compose ever sees it. helmfile2compose is a downstream consumer, not a linter. Fix your helmfile, re-render, re-convert. Actions, consequences.
 
 ## Final warning
 

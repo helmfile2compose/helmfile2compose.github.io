@@ -15,9 +15,9 @@ Here because this upmost abomination is causing issues? Here's the path to (part
 
 There are dozens of tools that go from Compose to Kubernetes ([Kompose](https://github.com/kubernetes/kompose), [Compose Bridge](https://docs.docker.com/compose/bridge/), [Move2Kube](https://move2kube.konveyor.io/), etc.) — that's the "normal" direction. Almost nothing goes the other way, because who would design their deployment in K8s first and then downgrade?
 
-Using Kubernetes manifests as an intermediate representation to generate a docker-compose is absolutely using an ICBM to kill flies — which is exactly why I find it satisfying.
+Using Kubernetes manifests as an intermediate representation to generate a docker-compose is absolutely using an ICBM to kill flies — which is exactly why I find it satisfying. And then the ICBM grew an extension system, a package manager, a distribution model, and a regression suite — and at some point the architecture of the tool converged with the architecture of the thing it was converting. The ouroboros closed. There was nothing left to stop me.
 
-The name is `helmfile2compose` because both helmfilLe and docker-compose share the same purpose: deploying an entire self-contained platform at once. If you're using this to convert something that isn't self-contained, you are further into the abyss than I ever ventured, and I am certain it will end terribly. Yog Sa'rath, stay away from me.
+The name is `helmfile2compose` because both helmfile and docker-compose share the same purpose: deploying an entire self-contained platform at once. It is also, now, the name of the [distribution](https://github.com/helmfile2compose/helmfile2compose) — the assembled script that users actually run. If you're using this to convert something that isn't self-contained, you are further into the abyss than I ever ventured, and I am certain it will end terribly. Yog Sa'rath, stay away from me.
 
 > *The uninitiated beseeched the architect: render thy celestial works in common clay, that we may raise them without knowledge of the heavens. It was heresy. The architect obliged. The temples stood.*
 >
@@ -36,15 +36,18 @@ The name is `helmfile2compose` because both helmfilLe and docker-compose share t
 
 *"I have a helmfile and need to provide a compose deployment."*
 
-- **[Your project](maintainer/your-project.md)** — installation, first run, adapting h2c for your own helmfile
+- **[Your project](maintainer/your-project.md)** — installation, first run, adapting helmfile2compose for your own helmfile
 - **[Configuration](maintainer/configuration.md)** — `helmfile2compose.yaml` deep dive: volumes, overrides, secrets, replacements
 - **[Known workarounds](maintainer/known-workarounds/index.md)** — sushi recipes for the tentacles that don't fit
-- **[h2c-manager](maintainer/h2c-manager.md)** — installing h2c and extensions via the package manager
+- **[h2c-manager](maintainer/h2c-manager.md)** — installing helmfile2compose and extensions via the package manager
 
 ### For developers
 
 - **[Concepts](developer/concepts.md)** — design philosophy, emulation boundary, K8s vs Compose differences
 - **[Architecture](developer/architecture.md)** — converter pipeline, what gets converted, dispatch loop
+- **[h2c-core](developer/h2c-core.md)** — the bare engine: package structure, three layers, pacts API
+- **[Distributions](developer/distributions.md)** — what a distribution is, how to build one, `_auto_register()`
+- **[Build system](developer/build-system.md)** — concatenation, import stripping, `sys.modules` hack
 - **[Code quality](developer/code-quality.md)** — linter scores, complexity metrics, existential dread
 - **[Testing](developer/testing.md)** — regression suite, torture generator, performance tracking
 - **[Writing extensions](developer/extensions/index.md)** — converters, providers, transforms, rewriters
@@ -81,7 +84,7 @@ What started as a single script became an ecosystem of four components:
 
 - **[h2c-core](https://github.com/helmfile2compose/h2c-core)** — *the bare engine.* The conversion pipeline, extension loader, and CLI — with empty registries. No built-in converters, no opinions. A temple with no priests. Produces `h2c.py` (~1265 lines).
 - **[helmfile2compose](https://github.com/helmfile2compose/helmfile2compose)** — *the distribution.* h2c-core + 7 built-in extensions (workloads, indexers, HAProxy rewriter, Caddy provider), concatenated into a single `helmfile2compose.py` (~1672 lines). This is what users run. See [Distributions](developer/distributions.md).
-- **[Extensions](catalogue.md)** — *the damned.* External modules that teach h2c new tricks. Providers, converters, indexers, transforms, ingress rewriters, ingress providers — each a single `.py` file. For the glory of Yog Sa'rath.
+- **[Extensions](catalogue.md)** — *the damned.* External modules that teach helmfile2compose new tricks. Providers, converters, indexers, transforms, ingress rewriters, ingress providers — each a single `.py` file. For the glory of Yog Sa'rath.
 - **[h2c-manager](https://github.com/helmfile2compose/h2c-manager)** — *the dark priest.* Downloads the distribution and extensions from GitHub releases, resolves dependencies, and provides a `run` shortcut. Reads `helmfile2compose.yaml` for declarative dependency management. Stdlib only, no dependencies.
 
 ## Repositories

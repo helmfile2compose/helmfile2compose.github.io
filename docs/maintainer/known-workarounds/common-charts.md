@@ -1,6 +1,6 @@
 # Common charts that don't comply
 
-Some Helm charts — popular, well-maintained, widely deployed — produce manifests that don't survive the flattening intact. Not because h2c is wrong, but because the charts make assumptions about the runtime that only hold in Kubernetes.
+Some Helm charts — popular, well-maintained, widely deployed — produce manifests that don't survive the flattening intact. Not because helmfile2compose is wrong, but because the charts make assumptions about the runtime that only hold in Kubernetes.
 
 > *Certain beasts, though domesticated by the ancients, refuse to kneel before lesser altars. They do not resist — they simply ignore the new prayers, continuing to chant the old liturgy until the disciple learns to speak their tongue.*
 >
@@ -75,7 +75,7 @@ Or dive deep into their treachery yourself:
 
 The Bitnami PostgreSQL chart wraps the standard `postgres` image in a custom entrypoint that manages permissions, TLS, replication setup, and init scripts through a chain of shell scripts baked into the image at `/opt/bitnami/`. In Kubernetes, this works because the chart controls the full pod spec — volumes, security context, environment — and everything lands exactly where the scripts expect.
 
-In compose, h2c converts the pod faithfully, but the Bitnami entrypoint expects its data directory at `/bitnami/postgresql` (not the standard `/var/lib/postgresql/data`), reads secrets from `/opt/bitnami/postgresql/secrets/`, and runs init scripts from a specific path. The generated volume mounts often don't line up, because h2c maps PVCs to host paths without knowledge of Bitnami's internal conventions.
+In compose, helmfile2compose converts the pod faithfully, but the Bitnami entrypoint expects its data directory at `/bitnami/postgresql` (not the standard `/var/lib/postgresql/data`), reads secrets from `/opt/bitnami/postgresql/secrets/`, and runs init scripts from a specific path. The generated volume mounts often don't line up, because helmfile2compose maps PVCs to host paths without knowledge of Bitnami's internal conventions.
 
 **Override:**
 

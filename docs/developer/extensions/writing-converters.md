@@ -6,7 +6,7 @@ A converter is an extension that teaches h2c how to handle specific Kubernetes r
 >
 > — *Book of Eibon, On Names and Bindings (probably²)*
 
-If your converter targets CRD kinds (replacing a K8s controller), see [CRD patterns](writing-crd-patterns.md) for additional patterns (synthetic resources, network alias registration, cross-converter dependencies). For Ingress-specific reverse proxy backends, see [Writing ingress providers](writing-ingressproviders.md).
+If your converter targets CRD kinds (replacing a K8s controller), see [Writing providers](writing-providers.md) for additional patterns (synthetic resources, network alias registration, cross-converter dependencies). For Ingress-specific reverse proxy backends, see [Writing ingress providers](writing-ingressproviders.md).
 
 Note: the distinction between converters (`h2c-converter-*`) and providers (`h2c-provider-*`) is enforced — `Provider` is a base class in `h2c.pacts.types`. Providers produce compose services; converters produce synthetic resources. Both use `ConvertResult`, but subclassing `Provider` signals your intent to the framework.
 
@@ -41,7 +41,7 @@ class MyConverter:
 A dataclass with two fields:
 
 - **`services`** — `dict[str, dict]`: compose service definitions to add. Keyed by service name.
-- **`caddy_entries`** — `list[dict]`: Caddy reverse proxy entries. Each entry has `host`, `path`, `upstream`, `scheme`, and optional `server_ca_secret`, `server_sni`, `strip_prefix`, `extra_directives`. Ingress rewriters are the primary producers of caddy_entries; converters rarely need to produce them directly.
+- **`caddy_entries`** — `list[dict]`: ingress entries consumed by the configured `IngressProvider`. The field name is historical (Caddy is the default provider). Each entry has `host`, `path`, `upstream`, `scheme`, and optional `server_ca_secret`, `server_sni`, `strip_prefix`, `extra_directives`. Ingress rewriters are the primary producers of `caddy_entries`; converters rarely need to produce them directly.
 
 Both default to empty. Most converters only produce `services`.
 
@@ -51,8 +51,8 @@ The conversion context passed to every converter. Key attributes:
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `ctx.configmaps` | `dict` | Indexed ConfigMaps (name -> manifest). **Writable** — converters can inject synthetic ConfigMaps (see [CRD patterns](writing-crd-patterns.md)). |
-| `ctx.secrets` | `dict` | Indexed Secrets (name -> manifest). **Writable** — converters can inject synthetic secrets (see [CRD patterns](writing-crd-patterns.md)). |
+| `ctx.configmaps` | `dict` | Indexed ConfigMaps (name -> manifest). **Writable** — converters can inject synthetic ConfigMaps (see [Writing providers](writing-providers.md)). |
+| `ctx.secrets` | `dict` | Indexed Secrets (name -> manifest). **Writable** — converters can inject synthetic secrets (see [Writing providers](writing-providers.md)). |
 | `ctx.config` | `dict` | The `helmfile2compose.yaml` config |
 | `ctx.output_dir` | `str` | Output directory for generated files |
 | `ctx.warnings` | `list[str]` | Append warnings here (printed to stderr) |

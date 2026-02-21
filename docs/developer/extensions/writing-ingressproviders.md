@@ -34,7 +34,7 @@ Two methods to implement:
 
 ### `build_service(entries, ctx) -> dict`
 
-Receives all collected Caddy entries and the `ConvertContext`. Returns a dict of compose service definitions (keyed by service name), or empty dict if disabled.
+Receives all collected rewriter entries and the `ConvertContext`. Returns a dict of compose service definitions (keyed by service name), or empty dict if disabled.
 
 ```python
 def build_service(self, entries, ctx):
@@ -118,13 +118,15 @@ class CaddyProvider(IngressProvider):
 
 ## When to write one
 
-Write an `IngressProvider` when you want to replace the entire reverse proxy backend — Caddy with Traefik, Nginx Proxy Manager, HAProxy (as a proxy, not just a rewriter), etc. This is a **distribution-level extension**: it lives in a distribution's `extensions/` directory, not as an external extension loaded via `--extensions-dir`.
+Write an `IngressProvider` when you want to replace the entire reverse proxy backend — Caddy with Traefik, Nginx Proxy Manager, HAProxy (as a proxy, not just a rewriter), etc.
 
-If you only need to translate a different ingress controller's annotations into Caddy entries, write an [IngressRewriter](writing-rewriters.md) instead — that's much simpler and works as an external extension.
+If you only need to translate a different ingress controller's annotations into entry dicts, write an [IngressRewriter](writing-rewriters.md) instead — that's much simpler.
 
-## Distribution-level extension
+## Distribution-level vs external
 
-`IngressProvider` subclasses are bundled into distributions at build time via `build-distribution.py`. They are not designed for runtime loading (they're part of the concatenated script). See [Distributions](../distributions.md) for how to create a custom distribution with your own ingress provider.
+`IngressProvider` subclasses are *typically* bundled into distributions at build time via `build-distribution.py` — that's the intended pattern, since the ingress provider is a core architectural choice for a distribution.
+
+That said, loading an `IngressProvider` from `--extensions-dir` works — the extension loader detects it as a converter (it has `kinds` and `convert()`), and the CLI scans for the active `IngressProvider` at runtime. It's just not the recommended path: the ingress provider shapes the entire output (Caddyfile vs nginx.conf vs traefik.yml), so shipping it as a loose external extension makes the setup fragile. Prefer building a [custom distribution](../distributions.md) instead.
 
 ```
 my-distribution/

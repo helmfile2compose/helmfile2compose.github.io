@@ -32,7 +32,7 @@ That's it. No return value — transforms mutate `compose_services` and `caddy_e
 | Argument | Type | Description |
 |----------|------|-------------|
 | `compose_services` | `dict[str, dict]` | All compose service definitions. Keyed by service name. Mutable. |
-| `caddy_entries` | `list[dict]` | Caddy reverse proxy entries. Each has `host`, `path`, `upstream`, `scheme`, optionally `server_ca_secret`, `server_sni`, `strip_prefix`, `extra_directives`. Mutable. |
+| `caddy_entries` | `list[dict]` | Ingress entries consumed by the configured `IngressProvider` (field name is historical). Each has `host`, `path`, `upstream`, `scheme`, optionally `server_ca_secret`, `server_sni`, `strip_prefix`, `extra_directives`. Mutable. |
 | `ctx` | `ConvertContext` | Same context as converters. See [ConvertContext](writing-converters.md#convertcontext-ctx) for all attributes. |
 
 ### When transforms run
@@ -67,7 +67,7 @@ Transforms have full access to `compose_services`, `caddy_entries`, and `ctx`. T
 
 - **Add, remove, or modify services** — inject a monitoring sidecar, strip debug services, rewrite images
 - **Rewrite environment variables** — search-and-replace across all services
-- **Modify Caddy entries** — rewrite upstreams, add headers, change routing
+- **Modify ingress entries** — rewrite upstreams, add headers, change routing
 - **Modify files on disk** — `ctx.output_dir` points to the output directory where configmaps and secrets have already been written
 - **Read context** — `ctx.alias_map`, `ctx.services_by_selector`, `ctx.config` are all available for decision-making
 

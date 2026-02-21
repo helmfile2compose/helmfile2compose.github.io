@@ -1,12 +1,37 @@
-# CRD patterns
+# Writing providers
 
-This page covers patterns specific to converters that handle CRD kinds — emulating what a K8s controller would have done at runtime. The code interface is the same (`kinds` + `convert()` → `ConvertResult`), but CRD converters deal with additional patterns: injecting synthetic resources, registering services that the K8s controller would have created, and coordinating with other converters through priority ordering.
+A provider is a converter that produces compose services from CRD kinds — emulating what a K8s controller would have done at runtime. Providers subclass `Provider` (from `h2c`) and share the same `kinds` + `convert()` interface as converters, but deal with additional patterns: injecting synthetic resources, registering services that the K8s controller would have created, and coordinating with other extensions through priority ordering.
 
 > *The priests were gone, yet the rituals continued. The faithful did not notice — for the incantations were spoken in the same tongue, and the sacrifices consumed in the same fire. Only the altar knew that the hands were different.*
 >
 > — *De Vermis Mysteriis, On the Succession of Clergy (contested)*
 
 Read [Writing converters](writing-converters.md) first for the base interface (`kinds`, `convert()`, `ConvertResult`, `ConvertContext`, priority, testing, publishing).
+
+## Provider vs Converter
+
+CRD extensions that **produce compose services** (i.e. return non-empty `ConvertResult.services`) should subclass `Provider`:
+
+```python
+from h2c import Provider, ConvertResult
+
+class KeycloakProvider(Provider):
+    kinds = ["Keycloak", "KeycloakRealmImport"]
+    name = "keycloak"
+    # Provider default priority is 500 — override if needed
+```
+
+CRD extensions that only **inject synthetic resources** (Secrets, ConfigMaps) without producing services should remain plain converters:
+
+```python
+from h2c import ConvertResult
+
+class CertManagerConverter:
+    kinds = ["Certificate", "ClusterIssuer", "Issuer"]
+    priority = 10
+```
+
+The distinction is enforced — `Provider` is a base class in `h2c.pacts.types` (subclass of `Converter`, default priority 500). Subclassing it signals intent to the framework. Naming convention: `h2c-provider-*` for providers, `h2c-converter-*` for converters.
 
 ## Injecting synthetic resources
 

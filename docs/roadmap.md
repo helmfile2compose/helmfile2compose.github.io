@@ -40,9 +40,13 @@ The Kubernetes [Gateway API](https://gateway-api.sigs.k8s.io/) is the eventual s
 
 Named pipeline hooks (`post_aliases`, `pre_write`, etc.) for extensions. Not needed yet — converters + transforms cover known cases. Revisit if a third pattern shows up.
 
+### Rename `caddy_entries` to `ingress_entries`
+
+`ConvertResult.caddy_entries`, `disableCaddy`, `caddy_email`, `caddy_tls_internal` — these names leak the default provider into the core API and config schema. Now that `IngressProvider` is an abstract base class and the system is provider-agnostic, rename to generic terms (`ingress_entries`, `disable_ingress`, `ingress_email`, `ingress_tls_internal` or similar). Breaking change for extensions that reference `caddy_entries` directly — coordinate with a major version bump or a deprecation period.
+
 ### Config key naming consistency
 
-`helmfile2compose.yaml` mixes camelCase (`disableCaddy`, `ingressTypes`, `helmfile2ComposeVersion`) and snake_case (`volume_root`, `caddy_email`, `caddy_tls_internal`, `core_version`). Normalize to one convention (snake_case, with camelCase aliases for backwards compatibility during a transition period).
+`helmfile2compose.yaml` mixes camelCase (`disableCaddy`, `ingressTypes`, `helmfile2ComposeVersion`) and snake_case (`volume_root`, `caddy_email`, `caddy_tls_internal`, `core_version`). Normalize to one convention (snake_case, with camelCase aliases for backwards compatibility during a transition period). Overlaps with the `caddy_entries` rename above — do both at once.
 
 ### Extension compatibility matrix
 

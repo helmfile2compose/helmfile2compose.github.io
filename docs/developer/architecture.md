@@ -20,7 +20,7 @@ For the internal package structure, module layout, and build system, see [h2c-co
 
 ## Converter dispatch
 
-Manifests are classified by `kind` and dispatched to converter classes. Each converter handles one or more K8s kinds and returns a `ConvertResult` (compose services, Caddy entries, or both).
+Manifests are classified by `kind` and dispatched to converter classes. Each converter handles one or more K8s kinds and returns a `ConvertResult` (compose services, ingress entries, or both).
 
 ```
 K8s manifests
@@ -63,7 +63,7 @@ See [Writing transforms](extensions/writing-transforms.md) for the full guide.
 
 ### Ingress rewriters
 
-Ingress annotation handling is dispatched through `IngressRewriter` classes. Each rewriter targets a specific ingress controller (identified by `ingressClassName` or annotation prefix) and translates its annotations into Caddy entries.
+Ingress annotation handling is dispatched through `IngressRewriter` classes. Each rewriter targets a specific ingress controller (identified by `ingressClassName` or annotation prefix) and translates its annotations into ingress entry dicts consumed by the configured `IngressProvider`.
 
 The built-in `HAProxyRewriter` handles `haproxy` and empty/absent ingress classes, plus any manifest with `haproxy.org/*` annotations. It also acts as the default fallback when no `ingressClassName` is set — if no external rewriter matches first, HAProxy claims the manifest.
 

@@ -1,6 +1,6 @@
 # Writing rewriters
 
-An ingress rewriter translates controller-specific Ingress annotations into Caddy configuration entries. Each rewriter targets a specific ingress controller — dispatched by `ingressClassName` or annotation prefix.
+An ingress rewriter translates controller-specific Ingress annotations into ingress entry dicts, consumed by whichever `IngressProvider` is configured in the distribution. Each rewriter targets a specific ingress controller — dispatched by `ingressClassName` or annotation prefix.
 
 > *The gatekeepers of old each bore a different sigil, yet all opened the same threshold. The pilgrim need not know the sigil — only declare which gate he approaches, and the keeper shall answer in kind.*
 >
@@ -12,7 +12,7 @@ A rewriter class must have:
 
 1. **`name`** — a string identifying the rewriter (e.g. `"haproxy"`, `"nginx"`). Used for override matching: an external rewriter with the same `name` as a built-in one replaces it.
 2. **`match(manifest, ctx)`** — return `True` if this rewriter handles this Ingress manifest. Typically checks `ingressClassName` (resolved through `ingressTypes` config) or annotation prefixes.
-3. **`rewrite(manifest, ctx)`** — convert one Ingress manifest to a list of Caddy entry dicts.
+3. **`rewrite(manifest, ctx)`** — convert one Ingress manifest to a list of entry dicts (see [entry format](#entry-format) below).
 4. **`priority`** *(optional)* — integer, default `100`. Lower = checked earlier. External rewriters are always checked before built-in ones, regardless of priority. Priority only orders rewriters within the same pool (external or built-in).
 
 ```python
@@ -59,11 +59,11 @@ Each entry dict returned by `rewrite()` must have:
 | `server_ca_secret` | `str` | no | Secret name containing CA cert for backend TLS |
 | `server_sni` | `str` | no | SNI server name for backend TLS |
 | `strip_prefix` | `str` | no | Path prefix to strip before proxying |
-| `extra_directives` | `list[str]` | no | Raw Caddy directive strings (see below) |
+| `extra_directives` | `list[str]` | no | Provider-specific directive strings (see below) |
 
 ### `extra_directives`
 
-A list of raw Caddy directive strings injected into the host block. They are written after `uri strip_prefix` and before `reverse_proxy`, which places them in the right Caddy order for directives like `header`, `rate_limit`, `basic_auth`, `forward_auth`, `request_body`, etc.
+A list of provider-specific directive strings injected into the generated config. With the default `CaddyProvider`, these are raw Caddy directives inserted into the host block — after `uri strip_prefix` and before `reverse_proxy`, which places them in the right Caddy order for directives like `header`, `rate_limit`, `basic_auth`, `forward_auth`, `request_body`, etc. Other `IngressProvider` implementations may interpret these differently or ignore them.
 
 ```python
 entries.append({
@@ -80,7 +80,7 @@ entries.append({
 
 ## How dispatch works
 
-When `IngressConverter` processes Ingress manifests, each manifest is dispatched to the first matching rewriter:
+When the `IngressProvider` processes Ingress manifests, each manifest is dispatched to the first matching rewriter:
 
 1. External rewriters are checked first (in priority order)
 2. Built-in rewriters are checked next

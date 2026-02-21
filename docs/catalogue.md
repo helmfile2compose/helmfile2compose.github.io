@@ -14,7 +14,7 @@ There are five extension types, all loaded from the same `--extensions-dir`:
 | **Converter** | `kinds` + `convert()` | Handle K8s resource kinds, produce synthetic resources (Secrets, ConfigMaps) | `h2c-converter-*` |
 | **Provider** | `kinds` + `convert()` | Handle K8s resource kinds, produce compose services (and possibly resources) | `h2c-provider-*` |
 | **Transform** | `transform()`, no `kinds` | Post-process the final compose output after converters | `h2c-transform-*` |
-| **Ingress rewriter** | `name` + `match()` + `rewrite()` | Translate ingress controller annotations into Caddy config | `h2c-rewriter-*` |
+| **Ingress rewriter** | `name` + `match()` + `rewrite()` | Translate ingress controller annotations into ingress entries | `h2c-rewriter-*` |
 
 All converters share the same code interface (`kinds` + `convert()` → `ConvertResult`), but the repo naming convention signals what they produce:
 
@@ -23,7 +23,7 @@ All converters share the same code interface (`kinds` + `convert()` → `Convert
 
 The distinction is enforced: `Provider` is a base class in `h2c.pacts.types`. Subclassing it signals that the extension produces compose services.
 
-See [Writing converters](developer/extensions/writing-converters.md) for the generic interface. For CRD-specific patterns (synthetic resources, emulating K8s controllers), see [CRD patterns](developer/extensions/writing-crd-patterns.md). For reverse proxy providers, see [Writing ingress providers](developer/extensions/writing-ingressproviders.md).
+See [Writing converters](developer/extensions/writing-converters.md) for the generic interface. For providers (CRD extensions that produce compose services), see [Writing providers](developer/extensions/writing-providers.md). For reverse proxy providers, see [Writing ingress providers](developer/extensions/writing-ingressproviders.md).
 
 ## Providers
 
@@ -227,9 +227,9 @@ This is the reference implementation for `IngressProvider`. See [Writing ingress
 ## Writing your own
 
 - **[Writing converters](developer/extensions/writing-converters.md)** — the generic interface: `kinds`, `convert()`, `ConvertResult`, `ConvertContext`
-- **[CRD patterns](developer/extensions/writing-crd-patterns.md)** — CRD-specific patterns: synthetic resources, network alias registration
+- **[Writing providers](developer/extensions/writing-providers.md)** — providers: synthetic resources, network alias registration, emulation boundary
 - **[Writing transforms](developer/extensions/writing-transforms.md)** — post-processing the final compose output
-- **[Writing rewriters](developer/extensions/writing-rewriters.md)** — translating ingress annotations to Caddy config
+- **[Writing rewriters](developer/extensions/writing-rewriters.md)** — translating ingress annotations to ingress entries
 - **[Writing ingress providers](developer/extensions/writing-ingressproviders.md)** — replacing the reverse proxy backend entirely
 
 Drop it in a `.py` file, and either use `--extensions-dir` locally or publish it as a GitHub repo for h2c-manager distribution. The abyss is open for contributions.

@@ -31,11 +31,11 @@ class NginxRewriter(IngressRewriter):
 
     def rewrite(self, manifest, ctx):
         entries = []
-        for rule in manifest.get("spec", {}).get("rules", []):
+        for rule in (manifest.get("spec") or {}).get("rules") or []:
             host = rule.get("host", "")
             if not host:
                 continue
-            for path_entry in rule.get("http", {}).get("paths", []):
+            for path_entry in (rule.get("http") or {}).get("paths") or []:
                 backend = resolve_backend(path_entry, manifest, ctx)
                 entries.append({
                     "host": host,
@@ -58,7 +58,7 @@ Each entry dict returned by `rewrite()` must have:
 | `scheme` | `str` | yes | `http` or `https` |
 | `server_ca_secret` | `str` | no | Secret name containing CA cert for backend TLS |
 | `server_sni` | `str` | no | SNI server name for backend TLS |
-| `strip_prefix` | `str` | no | Path prefix to strip before proxying |
+| `strip_prefix` | `str` | no | Path prefix to strip before proxying. On multi-path rules, scope it to the matching path — don't apply a global annotation blindly to every entry. |
 | `extra_directives` | `list[str]` | no | Provider-specific directive strings (see below) |
 
 ### `extra_directives`

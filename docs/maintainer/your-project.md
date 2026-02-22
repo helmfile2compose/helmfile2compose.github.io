@@ -141,7 +141,7 @@ Compatibility was covered [above](#before-you-start-ingress-controller). This se
 
 | Controller | Annotations |
 |------------|-------------|
-| **HAProxy** | `haproxy.org/path-rewrite` → strip prefix, `haproxy.org/server-ssl` + `server-ca` → backend TLS, `server-sni` |
+| **HAProxy** | `haproxy.org/path-rewrite` → strip prefix (scoped per path on multi-path rules), `haproxy.org/server-ssl` + `server-ca` → backend TLS, `server-sni` |
 | **Nginx** | `rewrite-target`, `backend-protocol`, `enable-cors`, `proxy-body-size`, `configuration-snippet` (partial) |
 | **Traefik** | `router.tls`, standard Ingress path rules. No middleware CRD support. |
 

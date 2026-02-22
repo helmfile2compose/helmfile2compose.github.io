@@ -8,6 +8,16 @@
 
 ---
 
+## v3.0.1 — The one who lived at home
+
+*2026-02-22* · `distribution: 2102 lines`
+
+`haproxy.org/path-rewrite` is per-Ingress, not per-path. On multi-path rules, the extracted `strip_prefix` was applied to every path — including those the rewrite didn't cover. Now only applied when the path starts with the extracted prefix.
+
+Naturally, the two external rewriters — nginx and traefik — never had this bug. Nginx derives strip_prefix from each path individually. Traefik, a POC that has never been tested against a real cluster, got it right by accident. The only rewriter that shipped with the distribution was the only one that got it wrong.
+
+---
+
 ## v3.0.0 — The Ouroboros
 
 *2026-02-20* · `core: 1594 lines · distribution: 2098 lines — two files where there was one, and the sum is greater than the whole`
